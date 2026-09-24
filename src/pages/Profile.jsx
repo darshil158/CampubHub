@@ -12,6 +12,7 @@ import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Textarea } from "../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
+import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
 
@@ -122,7 +123,10 @@ function ProfileHero({ user }) {
 
         {/* Info */}
         <div className="text-center sm:text-left flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">{displayName}</h1>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <h1 className="text-2xl font-bold tracking-tight">{displayName}</h1>
+            <VerifiedBadge size="xs" />
+          </div>
           <p className="text-muted-foreground text-sm flex items-center gap-1.5 justify-center sm:justify-start mt-1">
             <Mail size={14} />
             {user.email}

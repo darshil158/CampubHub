@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { BookOpen, Loader2, AlertCircle } from "lucide-react"
+import { Loader2, AlertCircle, Mail, Lock, User, ShieldCheck } from "lucide-react"
 import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
+import { Badge } from "../components/ui/Badge"
+import { BrandLogo } from "../components/ui/BrandLogo"
 import { supabase } from "../lib/supabase"
 
 export default function Signup() {
@@ -34,12 +36,9 @@ export default function Signup() {
 
       if (error) throw error
       
-      // Successfully signed up. Assuming email confirmation is off for now, redirect.
-      // If email confirmation is ON in Supabase, they will need to check their email.
       if (data.session) {
         navigate('/marketplace')
       } else {
-        // If require email confirmation is enabled in Supabase project:
         setError("Account created! Please check your email to verify your account.")
       }
     } catch (err) {
@@ -50,80 +49,84 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center p-4 bg-muted/30">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center p-4 sm:p-6 bg-gradient-to-b from-primary/5 via-background to-background relative overflow-hidden">
+      {/* Ambient Backdrop Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-primary/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
-        <div className="bg-card border shadow-sm rounded-2xl p-8 flex flex-col items-center">
-          <div className="bg-primary/10 p-3 rounded-xl mb-4">
-            <BookOpen className="text-primary" size={32} />
+        <div className="bg-card/85 backdrop-blur-xl border border-border/80 shadow-2xl rounded-3xl p-8 sm:p-10 flex flex-col items-center">
+          <div className="mb-6 flex flex-col items-center">
+            <BrandLogo size="lg" linkTo="/" showWordmark={true} showBadge={false} />
+            <Badge variant="verified" size="xs" className="mt-3">
+              100% Student Verified
+            </Badge>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Create an account</h1>
-          <p className="text-muted-foreground text-sm mb-8 text-center">
-            Join your college community today. Use your student email for faster verification.
+
+          <h1 className="text-2xl font-bold tracking-tight text-center mb-1.5 text-foreground">Join Quadly Campus</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mb-6 text-center leading-relaxed">
+            Create an account using your student email to trade, find jobs, and meet roommates.
           </p>
 
           {error && (
-            <div className={`w-full mb-6 p-3 text-sm rounded-md flex items-start gap-2 border ${error.includes('check your email') ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-100'}`}>
-              <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <div className="w-full mb-6 p-3.5 bg-red-500/10 text-red-600 dark:text-red-400 text-xs sm:text-sm rounded-xl flex items-center gap-2.5 border border-red-500/20">
+              <AlertCircle size={16} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="w-full space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input 
-                id="name" 
-                name="name"
-                type="text" 
-                placeholder="John Doe" 
-                required 
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
+              <Input
+                id="name"
+                placeholder="Alex Rivers"
+                leftIcon={<User size={16} />}
+                required
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">College Email</Label>
-              <Input 
-                id="email" 
-                name="email"
-                type="email" 
-                placeholder="you@college.edu" 
-                required 
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold text-foreground/80">University Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="alex@university.edu"
+                leftIcon={<Mail size={16} />}
+                required
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                name="password"
-                type="password" 
-                placeholder="Create a strong password" 
-                required 
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-semibold text-foreground/80">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Min. 6 characters"
+                leftIcon={<Lock size={16} />}
+                required
                 minLength={6}
               />
             </div>
 
-            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                "Sign Up"
-              )}
+            <Button
+              type="submit"
+              variant="glow"
+              className="w-full mt-2 font-semibold shadow-md"
+              loading={isLoading}
+            >
+              Create Student Account
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign in
+          <div className="mt-8 text-center text-xs text-muted-foreground">
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary hover:underline font-semibold">
+              Log in
             </Link>
           </div>
         </div>

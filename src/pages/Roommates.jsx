@@ -11,6 +11,7 @@ import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Textarea } from "../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
+import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
 
@@ -116,37 +117,36 @@ export default function Roommates() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/10 p-8 md:p-10 mb-8"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-border/80 p-8 md:p-10 mb-8 shadow-xs"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(160_60%_50%/0.12),transparent_60%)]" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-emerald-500/15 p-2.5 rounded-xl">
-                <Home className="text-emerald-600" size={24} />
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight">Find Roommates</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="verified" size="xs">Quadly Housing</Badge>
+              <span className="text-xs text-muted-foreground font-medium">• Verified Student Roommates</span>
             </div>
-            <p className="text-muted-foreground max-w-lg">
-              Browse housing options, find compatible roommates, or list your open room for fellow students.
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Find Roommates & Housing</h1>
+            <p className="text-muted-foreground text-sm mt-1 max-w-lg leading-relaxed">
+              Browse student housing options, find compatible roommates, or list your open room or sublease.
             </p>
           </div>
-          <div className="flex w-full md:w-auto items-center gap-2">
+          <div className="flex w-full md:w-auto items-center gap-2.5">
             <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <Input
-                placeholder="Search listings..."
-                className="pl-9 bg-background/80 backdrop-blur-sm"
+                placeholder="Search rooms, campuses..."
+                leftIcon={<Search size={16} />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             {user && (
               <Button
-                className="gap-2 shadow-md shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white"
+                variant="success"
+                className="gap-1.5 shrink-0"
                 onClick={() => setShowCreateModal(true)}
               >
-                <Plus size={18} />
+                <Plus size={16} />
                 <span className="hidden sm:inline">Post Listing</span>
               </Button>
             )}

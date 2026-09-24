@@ -10,6 +10,7 @@ import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Textarea } from "../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
+import { Badge, RemoteBadge, VerifiedBadge } from "../components/ui/Badge"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
 
@@ -111,34 +112,32 @@ export default function Jobs() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/10 p-8 md:p-10 mb-8"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent border border-border/80 p-8 md:p-10 mb-8 shadow-xs"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.12),transparent_60%)]" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-primary/15 p-2.5 rounded-xl">
-                <Briefcase className="text-primary" size={24} />
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight">Campus Jobs & Gigs</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="verified" size="xs">Quadly Careers</Badge>
+              <span className="text-xs text-muted-foreground font-medium">• Student-Friendly Schedules</span>
             </div>
-            <p className="text-muted-foreground max-w-lg">
-              Discover part-time positions, on-campus student gigs, research assistantships, and freelance projects.
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Campus Jobs & Gigs</h1>
+            <p className="text-muted-foreground text-sm mt-1 max-w-lg leading-relaxed">
+              Discover part-time positions, on-campus student gigs, research assistantships, and flexible freelance projects.
             </p>
           </div>
-          <div className="flex w-full md:w-auto items-center gap-2">
+          <div className="flex w-full md:w-auto items-center gap-2.5">
             <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <Input
-                placeholder="Search jobs..."
-                className="pl-9 bg-background/80 backdrop-blur-sm"
+                placeholder="Search student roles..."
+                leftIcon={<Search size={16} />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             {user && (
-              <Button className="gap-2 shadow-md shadow-primary/20" onClick={() => setShowCreateModal(true)}>
-                <Plus size={18} />
+              <Button variant="glow" className="shrink-0 gap-1.5" onClick={() => setShowCreateModal(true)}>
+                <Plus size={16} />
                 <span className="hidden sm:inline">Post Job</span>
               </Button>
             )}

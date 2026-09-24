@@ -6,6 +6,8 @@ import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Badge } from "../components/ui/Badge"
+import { Card3D } from "../components/ui/Card3D"
+import { Canvas3D } from "../components/ui/Canvas3D"
 import { BrandLogo, BrandSymbol } from "../components/ui/BrandLogo"
 import { supabase } from "../lib/supabase"
 
@@ -40,9 +42,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center p-4 sm:p-6 bg-gradient-to-b from-primary/5 via-background to-background relative overflow-hidden">
-      {/* Ambient Backdrop Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-primary/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden bg-[#060911]">
+      {/* 3D Canvas Background & Cyber Perspective */}
+      <Canvas3D className="opacity-50" count={45} interactive={true} />
+      <div className="absolute inset-0 perspective-grid pointer-events-none opacity-30" />
+
+      {/* Ambient Volumetric Backlights */}
+      <div className="ambient-aurora w-[500px] h-[350px] bg-cyan-500/20 top-1/4 left-1/4 pointer-events-none" />
+      <div className="ambient-aurora w-[600px] h-[400px] bg-purple-600/20 bottom-1/4 right-1/4 pointer-events-none" />
 
       <motion.div 
         initial={{ opacity: 0, y: 18 }}
@@ -50,7 +57,7 @@ export default function Login() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="bg-card/85 backdrop-blur-xl border border-border/80 shadow-2xl rounded-3xl p-8 sm:p-10 flex flex-col items-center">
+        <Card3D neonGlow="cyan" maxTilt={8} className="p-8 sm:p-10 flex flex-col items-center bg-[#0B0F1C]/90 backdrop-blur-2xl border-white/15">
           <div className="mb-6 flex flex-col items-center">
             <BrandLogo size="lg" linkTo="/" showWordmark={true} showBadge={false} />
             <Badge variant="verified" size="xs" className="mt-3">
@@ -111,7 +118,7 @@ export default function Login() {
               Create an account
             </Link>
           </div>
-        </div>
+        </Card3D>
       </motion.div>
     </div>
   )

@@ -135,6 +135,8 @@ export function ModalBody({ className, children, ...props }) {
   )
 }
 
+export const ModalContent = ModalBody
+
 export function ModalFooter({ className, children, ...props }) {
   return (
     <div

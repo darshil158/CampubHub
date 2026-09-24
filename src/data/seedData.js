@@ -1,0 +1,1061 @@
+/**
+ * Quadly Campus Hub — Comprehensive Relational Seed Dataset
+ * Contains realistic, internally consistent data representing a premier tech/university campus.
+ * All foreign keys (sellerId, posterId, creatorId, profileId, etc.) logically resolve to valid profiles.
+ */
+
+export const INITIAL_PROFILES = [
+  {
+    id: "usr_aarav",
+    full_name: "Aarav Sharma",
+    email: "aarav.sharma@campus.edu",
+    university: "Indian Institute of Technology (IIT Delhi)",
+    course: "B.Tech Computer Science & Engineering",
+    semester: "Semester 6",
+    avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    bio: "CS Junior building distributed systems and machine learning pipelines. Campus hackathon lead and avid note-taker.",
+    phone: "+91 98765 43210",
+    trust_score: 98,
+    is_verified: true,
+    badges: ["Top Seller", "Dean's List", "Verified Tutor"],
+    joined_date: "2024-08-15"
+  },
+  {
+    id: "usr_priya",
+    full_name: "Priya Patel",
+    email: "priya.p@campus.edu",
+    university: "BITS Pilani",
+    course: "Dual B.E. Electronics & M.Sc Economics",
+    semester: "Semester 8",
+    avatar_url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+    bio: "Final year student moving out soon. Selling dorm setup and textbooks. TA for Digital Circuit Design.",
+    phone: "+91 98111 22334",
+    trust_score: 96,
+    is_verified: true,
+    badges: ["Verified Seller", "Senior Mentor"],
+    joined_date: "2023-07-20"
+  },
+  {
+    id: "usr_rohan",
+    full_name: "Rohan Verma",
+    email: "rohan.v@campus.edu",
+    university: "Delhi Technological University (DTU)",
+    course: "B.Tech Mechanical Engineering",
+    semester: "Semester 4",
+    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    bio: "Robotics club enthusiast. Looking for roommates and exchanging 3D printing & CAD skills for math tutoring.",
+    phone: "+91 97234 56789",
+    trust_score: 94,
+    is_verified: true,
+    badges: ["Maker Space Lead"],
+    joined_date: "2025-01-10"
+  },
+  {
+    id: "usr_ananya",
+    full_name: "Ananya Iyer",
+    email: "ananya.iyer@campus.edu",
+    university: "IIT Bombay",
+    course: "B.Tech Data Science & AI",
+    semester: "Semester 6",
+    avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+    bio: "Passionate about NLP and competitive programming. Tutoring linear algebra and Python. Love chess and coffee.",
+    phone: "+91 99887 76655",
+    trust_score: 99,
+    is_verified: true,
+    badges: ["Master Tutor", "5.0 Rating"],
+    joined_date: "2024-01-12"
+  },
+  {
+    id: "usr_vikram",
+    full_name: "Vikram Malhotra",
+    email: "vikram.m@campus.edu",
+    university: "Vellore Institute of Technology (VIT)",
+    course: "B.Tech Information Technology",
+    semester: "Semester 5",
+    avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    bio: "Freelance web designer and UI engineer. Renting out high-end camera & audio gear to student film clubs.",
+    phone: "+91 98450 12345",
+    trust_score: 92,
+    is_verified: true,
+    badges: ["Gear Renter"],
+    joined_date: "2024-09-01"
+  },
+  {
+    id: "usr_sneha",
+    full_name: "Sneha Mukherjee",
+    email: "sneha.m@campus.edu",
+    university: "Delhi University (SRCC)",
+    course: "B.Com (Hons) Finance & Analytics",
+    semester: "Semester 4",
+    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+    bio: "Corporate finance enthusiast. Uploading comprehensive CFA level 1 & Microeconomics study decks.",
+    phone: "+91 97110 99887",
+    trust_score: 95,
+    is_verified: true,
+    badges: ["Top Contributor"],
+    joined_date: "2025-02-14"
+  },
+  {
+    id: "usr_kabir",
+    full_name: "Kabir Sen",
+    email: "kabir.sen@campus.edu",
+    university: "IIT Kharagpur",
+    course: "B.Arch Architecture & Design",
+    semester: "Semester 7",
+    avatar_url: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80",
+    bio: "Architectural modeling, drafting board sales, and sustainable housing advocate. Looking for a quiet flatmate.",
+    phone: "+91 98990 11223",
+    trust_score: 93,
+    is_verified: true,
+    badges: ["Studio Pro"],
+    joined_date: "2023-11-05"
+  },
+  {
+    id: "usr_zoya",
+    full_name: "Zoya Akhtar",
+    email: "zoya.a@campus.edu",
+    university: "Ashoka University",
+    course: "B.A. Psychology & Media Studies",
+    semester: "Semester 4",
+    avatar_url: "https://images.unsplash.com/photo-1534751516642-a171ed292022?auto=format&fit=crop&w=400&q=80",
+    bio: "Writing tutor, podcast host, and campus social director. Hosting weekly mindfulness & study sprint circles.",
+    phone: "+91 98333 44556",
+    trust_score: 97,
+    is_verified: true,
+    badges: ["Community Builder"],
+    joined_date: "2024-03-18"
+  }
+];
+
+export const INITIAL_LISTINGS = [
+  {
+    id: "lst_1",
+    title: "Apple MacBook Air M2 (16GB RAM, 512GB SSD, Space Gray)",
+    price: 680,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Barely used for one semester of coding. Battery health at 99%. Comes with original 35W dual charger, box, and hard shell case. Pickup at Central Library.",
+    image_url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_aarav",
+    location: "North Campus, Library Quad",
+    status: "active",
+    views: 342,
+    favorites: 28,
+    is_rental_available: false,
+    created_at: "2026-09-21T10:30:00Z"
+  },
+  {
+    id: "lst_2",
+    title: "Calculus: Early Transcendentals (9th Edition) — James Stewart",
+    price: 38,
+    category: "Textbooks",
+    condition: "Good",
+    description: "Essential for Math 101/102. Minimal pencil annotations in Chapter 4-6, no torn pages. Includes digital practice solution sheet printout.",
+    image_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_priya",
+    location: "Hostel Block C Lobby",
+    status: "active",
+    views: 184,
+    favorites: 14,
+    is_rental_available: true,
+    created_at: "2026-09-22T14:15:00Z"
+  },
+  {
+    id: "lst_3",
+    title: "Sony WH-1000XM4 Noise Canceling Wireless Headphones",
+    price: 145,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Lifesaver for studying in loud dorms or cafes. Pristine audio, 30h battery life. Includes travel case and 3.5mm backup cable.",
+    image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_ananya",
+    location: "Main Dining Hall",
+    status: "active",
+    views: 298,
+    favorites: 36,
+    is_rental_available: false,
+    created_at: "2026-09-20T09:00:00Z"
+  },
+  {
+    id: "lst_4",
+    title: "Ergonomic Mesh Desk Chair with Lumbar Support & Adjustable Headrest",
+    price: 65,
+    category: "Furniture",
+    condition: "Good",
+    description: "Upgraded my dorm setup. Smooth rolling wheels, breathable mesh backing. Great for long study all-nighters. Disassembles easily.",
+    image_url: "https://images.unsplash.com/photo-1580481077195-c3a8a30f4e77?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_rohan",
+    location: "Engineering Hostel B",
+    status: "active",
+    views: 140,
+    favorites: 9,
+    is_rental_available: false,
+    created_at: "2026-09-23T11:45:00Z"
+  },
+  {
+    id: "lst_5",
+    title: "Texas Instruments TI-84 Plus CE Color Graphing Calculator",
+    price: 62,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Approved for SAT, ACT, AP Calc, and college engineering exams. Rechargeable battery, bright backlit screen. Preloaded with algebra tools.",
+    image_url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_sneha",
+    location: "Science Quad East",
+    status: "active",
+    views: 215,
+    favorites: 22,
+    is_rental_available: true,
+    created_at: "2026-09-23T16:00:00Z"
+  },
+  {
+    id: "lst_6",
+    title: "LG 27-inch 4K UHD IPS Monitor with USB-C 65W PD Charging",
+    price: 210,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Single-cable setup charges your laptop while transmitting 4K video. 99% sRGB color accuracy, tilt/height adjustable stand. No dead pixels.",
+    image_url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_aarav",
+    location: "North Campus, Innovation Hub",
+    status: "active",
+    views: 410,
+    favorites: 51,
+    is_rental_available: false,
+    created_at: "2026-09-19T18:20:00Z"
+  },
+  {
+    id: "lst_7",
+    title: "Introduction to Algorithms (CLRS 4th Edition) Hardcover",
+    price: 52,
+    category: "Textbooks",
+    condition: "New",
+    description: "The classic algorithmic bible. Bought for CS204 but dropped the elective. Brand new unopened condition.",
+    image_url: "https://images.unsplash.com/photo-1532012164546-f432f2e3777f?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_ananya",
+    location: "Computer Center 2nd Floor",
+    status: "active",
+    views: 260,
+    favorites: 31,
+    is_rental_available: false,
+    created_at: "2026-09-22T08:10:00Z"
+  },
+  {
+    id: "lst_8",
+    title: "Trek FX 2 Disc Hybrid Commuter Bicycle (Medium Frame, 24-Speed)",
+    price: 195,
+    category: "Other",
+    condition: "Good",
+    description: "Smooth ride across large campuses. Hydraulic disc brakes, front/rear reflectors, newly oiled chain. Free U-lock included.",
+    image_url: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_kabir",
+    location: "East Gate Bike Stand",
+    status: "active",
+    views: 312,
+    favorites: 29,
+    is_rental_available: true,
+    created_at: "2026-09-21T17:30:00Z"
+  },
+  {
+    id: "lst_9",
+    title: "Apple iPad Air 5 (M1, 64GB, Starlight) + Apple Pencil 2",
+    price: 430,
+    category: "Electronics",
+    condition: "Like New",
+    description: "The ultimate paperless note-taking setup with Paperlike screen protector already installed. Magnetic charging for Pencil 2 works flawlessly.",
+    image_url: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_priya",
+    location: "SAC Common Room",
+    status: "active",
+    views: 520,
+    favorites: 64,
+    is_rental_available: false,
+    created_at: "2026-09-23T19:00:00Z"
+  },
+  {
+    id: "lst_10",
+    title: "Compact 1.7 Cu. Ft. Mini Refrigerator with Freezer Compartment",
+    price: 55,
+    category: "Furniture",
+    condition: "Good",
+    description: "Fits comfortably under any dorm bed or desk. Energy Star efficient, whisper quiet motor. Thoroughly cleaned and defrosted.",
+    image_url: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_rohan",
+    location: "South Block Dormitory",
+    status: "active",
+    views: 189,
+    favorites: 17,
+    is_rental_available: true,
+    created_at: "2026-09-22T13:40:00Z"
+  },
+  {
+    id: "lst_11",
+    title: "Organic Chemistry (8th Edition) — Paula Yurkanis Bruice",
+    price: 34,
+    category: "Textbooks",
+    condition: "Good",
+    description: "Includes mechanism quick-guide summary insert and molecular model stencil. Essential for Pre-Med and Chem majors.",
+    image_url: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_zoya",
+    location: "Chemistry Lecture Hall 3",
+    status: "active",
+    views: 135,
+    favorites: 11,
+    is_rental_available: false,
+    created_at: "2026-09-20T12:00:00Z"
+  },
+  {
+    id: "lst_12",
+    title: "Logitech MX Master 3S Wireless Performance Mouse",
+    price: 68,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Quiet click technology, 8K DPI sensor tracks on glass, ultra-fast MagSpeed electromagnetic scroll wheel. USB-C charging.",
+    image_url: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_vikram",
+    location: "Design Studio Quad",
+    status: "active",
+    views: 240,
+    favorites: 26,
+    is_rental_available: false,
+    created_at: "2026-09-24T09:30:00Z"
+  },
+  {
+    id: "lst_13",
+    title: "Nespresso Essenza Mini Espresso Maker + 20 Pods",
+    price: 48,
+    category: "Other",
+    condition: "Good",
+    description: "Get through 8 AM lectures without paying $6 at the campus cafe. 19-bar pressure pump heats up in 25 seconds. Compact dorm friendly.",
+    image_url: "https://images.unsplash.com/photo-1517668808822-9ebb02ae2a0e?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_zoya",
+    location: "Arts Faculty Lobby",
+    status: "active",
+    views: 175,
+    favorites: 20,
+    is_rental_available: false,
+    created_at: "2026-09-23T10:15:00Z"
+  },
+  {
+    id: "lst_14",
+    title: "Principles of Corporate Finance (13th Edition) — Brealey, Myers",
+    price: 42,
+    category: "Textbooks",
+    condition: "Like New",
+    description: "Used for FIN301. Clean pages with no markings. Formula sheet included.",
+    image_url: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_sneha",
+    location: "Commerce Block A",
+    status: "active",
+    views: 112,
+    favorites: 8,
+    is_rental_available: false,
+    created_at: "2026-09-18T14:20:00Z"
+  },
+  {
+    id: "lst_15",
+    title: "Adjustable Laptop Riser Stand with Dual Cooling Fans",
+    price: 18,
+    category: "Electronics",
+    condition: "Like New",
+    description: "Solid aluminum alloy construction with dual USB powered quiet fans. Prevents neck strain during desk study.",
+    image_url: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_rohan",
+    location: "Engineering Workshop B",
+    status: "active",
+    views: 156,
+    favorites: 15,
+    is_rental_available: false,
+    created_at: "2026-09-22T15:00:00Z"
+  },
+  {
+    id: "lst_16",
+    title: "Sony Alpha a6400 Mirrorless Camera + 16-50mm Lens Kit",
+    price: 590,
+    category: "Electronics",
+    condition: "Like New",
+    description: "4K video recording, lightning-fast real-time eye autofocus. Perfect for content creators and student photographers.",
+    image_url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_vikram",
+    location: "Media Arts Department",
+    status: "active",
+    views: 388,
+    favorites: 42,
+    is_rental_available: true,
+    created_at: "2026-09-24T08:00:00Z"
+  },
+  {
+    id: "lst_17",
+    title: "Fundamentals of Physics (11th Edition) Extended — Halliday & Resnick",
+    price: 36,
+    category: "Textbooks",
+    condition: "Good",
+    description: "The complete two-semester physics companion. Chapters on mechanics, thermodynamics, and optics intact.",
+    image_url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_rohan",
+    location: "Physics Department Cafe",
+    status: "active",
+    views: 144,
+    favorites: 12,
+    is_rental_available: false,
+    created_at: "2026-09-21T11:20:00Z"
+  },
+  {
+    id: "lst_18",
+    title: "Warm LED Dimmable Architect Drafting Desk Lamp with USB Port",
+    price: 24,
+    category: "Furniture",
+    condition: "New",
+    description: "Clamp-on design saves desk real estate. 5 color temperature modes and memory dimmer. Glare-free illumination.",
+    image_url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+    seller_id: "usr_kabir",
+    location: "Architecture Studio 4",
+    status: "active",
+    views: 98,
+    favorites: 10,
+    is_rental_available: false,
+    created_at: "2026-09-23T17:10:00Z"
+  }
+];
+
+export const INITIAL_RENTALS = [
+  {
+    id: "rnt_1",
+    title: "Sony Alpha a7 IV 33MP Full-Frame Cinema Camera",
+    owner_id: "usr_vikram",
+    daily_rate: 28,
+    weekly_rate: 135,
+    deposit: 150,
+    category: "Audio / Video",
+    location: "Media Lab, North Campus",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+    description: "Cinema 4K 60p, 10-bit 4:2:2 recording. Includes two 128GB V90 SD cards, 3 batteries, dual charger, and 24-70mm f/2.8 lens. Perfect for student film festivals.",
+    min_days: 1
+  },
+  {
+    id: "rnt_2",
+    title: "Anker Nebula Capsule II Smart 720p Pocket Projector",
+    owner_id: "usr_aarav",
+    daily_rate: 14,
+    weekly_rate: 65,
+    deposit: 50,
+    category: "Entertainment",
+    location: "Innovation Hub Quad",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
+    description: "Coke-can sized cinema projector running Android TV with built-in 8W speaker. Ideal for dorm movie nights and student society presentations.",
+    min_days: 1
+  },
+  {
+    id: "rnt_3",
+    title: "Nintendo Switch OLED with 4 Joy-Cons & Mario Kart 8",
+    owner_id: "usr_rohan",
+    daily_rate: 12,
+    weekly_rate: 55,
+    deposit: 60,
+    category: "Gaming",
+    location: "Hostel Block B",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=800&q=80",
+    description: "Complete multiplayer bundle with 4 wireless controllers, HDMI dock, and 5 digital party games. Great for weekend lounge tournaments.",
+    min_days: 1
+  },
+  {
+    id: "rnt_4",
+    title: "Coleman 4-Person Waterproof Camping Tent + Sleeping Bags",
+    owner_id: "usr_kabir",
+    daily_rate: 18,
+    weekly_rate: 75,
+    deposit: 40,
+    category: "Outdoor",
+    location: "Architecture Studio",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80",
+    description: "Instant 60-second setup tent with WeatherTec system. Includes 2 thermal sleeping bags and camping lantern for weekend mountain hikes.",
+    min_days: 2
+  },
+  {
+    id: "rnt_5",
+    title: "TI-Nspire CX II CAS Advanced Graphing Calculator",
+    owner_id: "usr_priya",
+    daily_rate: 6,
+    weekly_rate: 22,
+    deposit: 30,
+    category: "Academics",
+    location: "Library Front Desk",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800&q=80",
+    description: "Full Computer Algebra System (CAS) for midterms and finals. Pre-calibrated and fully charged with fast USB-C cable.",
+    min_days: 1
+  },
+  {
+    id: "rnt_6",
+    title: "Black Formal Suit & Blazer (Size 38R / Medium)",
+    owner_id: "usr_aarav",
+    daily_rate: 15,
+    weekly_rate: 60,
+    deposit: 45,
+    category: "Apparel",
+    location: "North Campus Quad",
+    status: "available",
+    image_url: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
+    description: "Slim-fit tailored wool-blend formal suit with matching trousers. Freshly dry-cleaned. Perfect for corporate placement interviews & conferences.",
+    min_days: 1
+  }
+];
+
+export const INITIAL_SKILLS = [
+  {
+    id: "skl_1",
+    title: "Full-Stack React & Node.js Code Review / Debugging",
+    type: "offer",
+    category: "Programming",
+    description: "Can help you debug React hooks, state management, REST APIs, or setup Tailwind and database connections for your term project.",
+    profile_id: "usr_aarav",
+    exchange_for: "Math 202 Linear Algebra or Economics 101 notes",
+    rating: 4.9,
+    experience: "3 years building production web apps",
+    created_at: "2026-09-22T08:00:00Z"
+  },
+  {
+    id: "skl_2",
+    title: "Seeking Guitar Lessons (Acoustic Fingerstyle Basics)",
+    type: "request",
+    category: "Music",
+    description: "Complete beginner looking to learn acoustic chords and fingerpicking patterns. Can trade UI/UX design mockups or Python tutorials in return.",
+    profile_id: "usr_ananya",
+    exchange_for: "Python / Data Science tutoring",
+    rating: 5.0,
+    experience: "Beginner wanting to practice 2x / week",
+    created_at: "2026-09-23T12:00:00Z"
+  },
+  {
+    id: "skl_3",
+    title: "Figma UI/UX & Interactive Design Prototyping",
+    type: "offer",
+    category: "Design",
+    description: "Will create responsive wireframes, design systems, and pitch-deck visuals for student startups or hackathon teams.",
+    profile_id: "usr_vikram",
+    exchange_for: "Video editing or photography assistance",
+    rating: 4.8,
+    experience: "Designed 8+ campus apps and winner at HackFest",
+    created_at: "2026-09-21T15:30:00Z"
+  },
+  {
+    id: "skl_4",
+    title: "Conversational German & TOEFL / IELTS Essay Review",
+    type: "offer",
+    category: "Languages",
+    description: "Certified C1 German speaker. Available for conversational practice, grammar drills, or proofreading scholarship application essays.",
+    profile_id: "usr_zoya",
+    exchange_for: "Introduction to Calculus or Physics homework review",
+    rating: 4.9,
+    experience: "Goethe-Zertifikat C1 certified",
+    created_at: "2026-09-20T17:15:00Z"
+  },
+  {
+    id: "skl_5",
+    title: "AutoCAD & 3D SolidWorks Mechanical Modeling",
+    type: "offer",
+    category: "Engineering",
+    description: "Help with 3D component modeling, dimensioning, stress simulation, and preparation for campus 3D printing.",
+    profile_id: "usr_rohan",
+    exchange_for: "Digital marketing or social media promo",
+    rating: 4.7,
+    experience: "Lead designer at Campus Formula Student Team",
+    created_at: "2026-09-23T16:45:00Z"
+  },
+  {
+    id: "skl_6",
+    title: "Seeking Machine Learning (PyTorch) Guidance",
+    type: "request",
+    category: "Programming",
+    description: "Working on an image classification project. Need help understanding loss convergence and CNN architecture tuning.",
+    profile_id: "usr_priya",
+    exchange_for: "Verilog / Embedded Hardware tutoring",
+    rating: 4.9,
+    experience: "Intermediate coder needing advanced ML help",
+    created_at: "2026-09-24T07:15:00Z"
+  }
+];
+
+export const INITIAL_NOTES = [
+  {
+    id: "not_1",
+    title: "Complete Data Structures & Algorithms High-Yield Guide",
+    subject: "Computer Science",
+    course_code: "CS201",
+    semester: "Semester 3",
+    file_type: "PDF (84 Pages)",
+    downloads: 1420,
+    rating: 4.9,
+    contributor_id: "usr_aarav",
+    description: "Hand-crafted diagrams of Binary Trees, Graph Traversal (DFS/BFS, Dijkstra), Dynamic Programming memoization tables, and LeetCode top 50 patterns.",
+    tags: ["DSA", "LeetCode", "Algorithms", "C++", "Python"],
+    created_at: "2026-09-18T10:00:00Z"
+  },
+  {
+    id: "not_2",
+    title: "Multivariable Calculus & Vector Fields Midterm Prep Sheet",
+    subject: "Mathematics",
+    course_code: "MATH202",
+    semester: "Semester 4",
+    file_type: "PDF (36 Pages)",
+    downloads: 890,
+    rating: 4.8,
+    contributor_id: "usr_ananya",
+    description: "Every formula from Gradient, Curl, Divergence, Green's Theorem, Stokes' Theorem, and Divergence Theorem with 12 solved exam past papers.",
+    tags: ["Calculus", "Vector Calculus", "Exam Prep", "Formulas"],
+    created_at: "2026-09-19T14:30:00Z"
+  },
+  {
+    id: "not_3",
+    title: "Operating Systems Internals: Concurrency, Paging & Scheduling",
+    subject: "Computer Science",
+    course_code: "CS304",
+    semester: "Semester 5",
+    file_type: "PDF (58 Pages)",
+    downloads: 730,
+    rating: 4.9,
+    contributor_id: "usr_priya",
+    description: "Concise chapter summaries covering Semaphores, Deadlock prevention algorithms, Virtual Memory paging, and Linux inode file system structures.",
+    tags: ["OS", "Concurrency", "Linux", "SysProg"],
+    created_at: "2026-09-21T09:15:00Z"
+  },
+  {
+    id: "not_4",
+    title: "Microeconomics & Game Theory Decision Matrix Deck",
+    subject: "Economics",
+    course_code: "ECON102",
+    semester: "Semester 2",
+    file_type: "PDF (42 Pages)",
+    downloads: 620,
+    rating: 4.7,
+    contributor_id: "usr_sneha",
+    description: "Nash Equilibrium payoffs, monopoly price discrimination, deadweight loss graphs, and consumer surplus curves simplified with color coding.",
+    tags: ["Economics", "Game Theory", "Finance", "Summaries"],
+    created_at: "2026-09-20T16:00:00Z"
+  },
+  {
+    id: "not_5",
+    title: "Organic Chemistry Reaction Pathways & Synthesis Guide",
+    subject: "Chemistry",
+    course_code: "CHEM210",
+    semester: "Semester 3",
+    file_type: "PDF (64 Pages)",
+    downloads: 950,
+    rating: 4.9,
+    contributor_id: "usr_zoya",
+    description: "SN1 vs SN2 vs E1 vs E2 flowcharts, electrophilic aromatic substitution directing groups, and aldehyde/ketone nucleophilic additions.",
+    tags: ["Chemistry", "Pre-Med", "Reaction Mechanisms"],
+    created_at: "2026-09-22T11:45:00Z"
+  },
+  {
+    id: "not_6",
+    title: "Digital Logic Design & Verilog HDL Reference Guide",
+    subject: "Electrical Engineering",
+    course_code: "EE201",
+    semester: "Semester 3",
+    file_type: "PDF (48 Pages)",
+    downloads: 510,
+    rating: 4.8,
+    contributor_id: "usr_rohan",
+    description: "K-Map minimization, synchronous sequential state machines, FSM transition diagrams, and synthesizable Verilog code templates.",
+    tags: ["EE", "Verilog", "Logic Design", "FPGA"],
+    created_at: "2026-09-23T13:20:00Z"
+  }
+];
+
+export const INITIAL_TUTORS = [
+  {
+    id: "tut_1",
+    profile_id: "usr_ananya",
+    subjects: ["Data Structures", "Algorithms", "Machine Learning", "Python"],
+    hourly_rate: 22,
+    rating: 4.95,
+    reviews_count: 38,
+    experience: "Top 0.5% in National Coding Olympiad, 2-year university peer mentor",
+    availability: "Mon, Wed, Fri 4 PM – 8 PM",
+    bio: "I focus on breaking down intimidating dynamic programming problems into simple intuitive recursive relations.",
+    sessions_completed: 72
+  },
+  {
+    id: "tut_2",
+    profile_id: "usr_aarav",
+    subjects: ["Full-Stack Web Dev", "Database Design", "Operating Systems"],
+    hourly_rate: 20,
+    rating: 4.9,
+    reviews_count: 27,
+    experience: "Published paper on distributed caching; interned at top tech firm",
+    availability: "Tue, Thu 5 PM – 9 PM, Sat 10 AM – 2 PM",
+    bio: "Hands-on coding sessions where we build projects and master systems fundamentals together.",
+    sessions_completed: 54
+  },
+  {
+    id: "tut_3",
+    profile_id: "usr_priya",
+    subjects: ["Digital Logic", "Microeconomics", "Calculus I & II"],
+    hourly_rate: 18,
+    rating: 4.85,
+    reviews_count: 22,
+    experience: "Teaching Assistant for 2 semesters, GPA 9.4/10",
+    availability: "Weekdays 6 PM – 9 PM",
+    bio: "Patience and structured visual notes are my superpowers for engineering math and electronics.",
+    sessions_completed: 46
+  },
+  {
+    id: "tut_4",
+    profile_id: "usr_zoya",
+    subjects: ["Academic Writing", "Psychology 101", "GRE Verbal / TOEFL"],
+    hourly_rate: 16,
+    rating: 4.9,
+    reviews_count: 19,
+    experience: "Writing Center peer fellow, 332 GRE scorer",
+    availability: "Daily 3 PM – 7 PM",
+    bio: "From structuring convincing analytical essays to acing GRE vocabulary and reading comprehension.",
+    sessions_completed: 39
+  }
+];
+
+export const INITIAL_ROOMMATES = [
+  {
+    id: "rom_1",
+    title: "Spacious Private Bedroom in Modern 3BHK Flat near North Gate",
+    listing_type: "offering",
+    rent: 280,
+    location: "Green Valley Apartments, North Campus (5 min walk to gate)",
+    move_in_date: "2026-10-01",
+    lease_duration: "10-month academic lease",
+    room_type: "private",
+    poster_id: "usr_aarav",
+    gender_preference: "any",
+    amenities: ["High-speed WiFi", "Air Conditioning", "Washing Machine", "Kitchen with Microwave", "Balcony", "Power Backup"],
+    compatibility: { clean_rating: "High", noise_level: "Moderate", study_habits: "Night owl friendly" },
+    image_urls: [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
+    ],
+    status: "active",
+    created_at: "2026-09-22T14:00:00Z"
+  },
+  {
+    id: "rom_2",
+    title: "Looking for 1 Flatmate for Master Bedroom in 2BHK Society Flat",
+    listing_type: "offering",
+    rent: 220,
+    location: "Metro Heights, West Campus Road",
+    move_in_date: "2026-10-15",
+    lease_duration: "Flexible semester lease",
+    room_type: "private",
+    poster_id: "usr_rohan",
+    gender_preference: "male",
+    amenities: ["Gym Access", "Attached Bathroom", "High-speed WiFi", "RO Purifier", "Bike Parking"],
+    compatibility: { clean_rating: "Medium", noise_level: "Quiet after 11 PM", study_habits: "Weekend group studies" },
+    image_urls: [
+      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80"
+    ],
+    status: "active",
+    created_at: "2026-09-21T18:30:00Z"
+  },
+  {
+    id: "rom_3",
+    title: "Quiet CS Senior Seeking Studio Sublease or Shared Flat",
+    listing_type: "seeking",
+    rent: 250,
+    location: "Within 2 miles of Engineering Faculty",
+    move_in_date: "2026-10-01",
+    lease_duration: "Fall semester only",
+    room_type: "single",
+    poster_id: "usr_ananya",
+    gender_preference: "female",
+    amenities: ["WiFi", "Kitchen", "Quiet study space"],
+    compatibility: { clean_rating: "High", noise_level: "Very quiet", study_habits: "Early riser" },
+    image_urls: [
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80"
+    ],
+    status: "active",
+    created_at: "2026-09-23T11:20:00Z"
+  },
+  {
+    id: "rom_4",
+    title: "Furnished Single Room in Girls Shared Villa with Garden",
+    listing_type: "offering",
+    rent: 260,
+    location: "Oakridge Enclave, South Campus (Free campus shuttle stops outside)",
+    move_in_date: "2026-10-01",
+    lease_duration: "1 year lease",
+    room_type: "private",
+    poster_id: "usr_priya",
+    gender_preference: "female",
+    amenities: ["Gated Security", "Garden Patio", "Fully Equipped Kitchen", "Solar Water Heater", "In-unit Laundry"],
+    compatibility: { clean_rating: "Very High", noise_level: "Quiet during weekdays", study_habits: "Serious academics" },
+    image_urls: [
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"
+    ],
+    status: "active",
+    created_at: "2026-09-20T16:45:00Z"
+  }
+];
+
+export const INITIAL_JOBS = [
+  {
+    id: "job_1",
+    title: "Undergraduate Computer Systems Lab Assistant",
+    company: "Department of Computer Science & Engineering",
+    job_type: "on-campus",
+    pay_amount: 22,
+    pay_type: "hourly",
+    location: "Turing Lab, CS Building (Room 302)",
+    is_remote: false,
+    description: "Assist students during operating systems and C++ programming lab sessions. Maintain Linux workstation configurations, verify attendance, and help troubleshoot compile errors.",
+    skills_required: ["Linux", "C / C++", "Git", "Strong Communication"],
+    deadline: "2026-10-15",
+    poster_id: "usr_aarav",
+    status: "active",
+    applications_count: 14,
+    created_at: "2026-09-21T09:00:00Z"
+  },
+  {
+    id: "job_2",
+    title: "Front-End Developer & UI Engineering Intern",
+    company: "Campus Incubator — Stealth FinTech Startup",
+    job_type: "internship",
+    pay_amount: 650,
+    pay_type: "stipend",
+    location: "Campus Innovation Park / Hybrid",
+    is_remote: true,
+    description: "Build interactive client-facing dashboards in Next.js, TypeScript, and Tailwind. Fast-paced environment with mentorship from senior alumni engineers.",
+    skills_required: ["React", "TypeScript", "Tailwind CSS", "REST APIs"],
+    deadline: "2026-10-20",
+    poster_id: "usr_vikram",
+    status: "active",
+    applications_count: 29,
+    created_at: "2026-09-22T13:30:00Z"
+  },
+  {
+    id: "job_3",
+    title: "Campus Library Evening Circulation & Peer Desk Lead",
+    company: "Central University Library",
+    job_type: "part-time",
+    pay_amount: 18,
+    pay_type: "hourly",
+    location: "Main Library 1st Floor Desk",
+    is_remote: false,
+    description: "Manage checkout desk, help fellow students locate reference materials and thesis archives, and monitor study room bookings during evening hours.",
+    skills_required: ["Organization", "Customer Service", "Catalog Systems"],
+    deadline: "2026-10-10",
+    poster_id: "usr_zoya",
+    status: "active",
+    applications_count: 18,
+    created_at: "2026-09-20T10:15:00Z"
+  },
+  {
+    id: "job_4",
+    title: "AI Research Assistant (Computer Vision & Medical Imaging)",
+    company: "Bio-Imaging Research Lab",
+    job_type: "part-time",
+    pay_amount: 25,
+    pay_type: "hourly",
+    location: "Advanced Research Complex",
+    is_remote: true,
+    description: "Preprocess MRI and CT scan datasets, train PyTorch segmentation models (U-Net), and assist in drafting conference submission papers.",
+    skills_required: ["Python", "PyTorch", "OpenCV", "Data Cleaning"],
+    deadline: "2026-10-30",
+    poster_id: "usr_ananya",
+    status: "active",
+    applications_count: 21,
+    created_at: "2026-09-23T15:00:00Z"
+  },
+  {
+    id: "job_5",
+    title: "Official Campus Tour Guide & Ambassador",
+    company: "Undergraduate Admissions Office",
+    job_type: "part-time",
+    pay_amount: 19,
+    pay_type: "hourly",
+    location: "Admissions Center",
+    is_remote: false,
+    description: "Lead engaging 60-minute walking tours of campus facilities for prospective high school students and families. Answer student life questions with enthusiasm.",
+    skills_required: ["Public Speaking", "Campus Lore", "Enthusiasm", "Punctuality"],
+    deadline: "2026-10-18",
+    poster_id: "usr_priya",
+    status: "active",
+    applications_count: 12,
+    created_at: "2026-09-24T08:30:00Z"
+  }
+];
+
+export const INITIAL_STUDY_GROUPS = [
+  {
+    id: "grp_1",
+    title: "LeetCode Grind & Tech Placement Sprint 2026",
+    subject: "Computer Science & Software Interviews",
+    semester: "Semester 5-8",
+    campus: "IIT / All Campuses",
+    meeting_schedule: "Mon & Thu 8:30 PM (Google Meet + In-person Library)",
+    members_count: 18,
+    max_capacity: 25,
+    creator_id: "usr_aarav",
+    description: "Solving 3 LeetCode Medium/Hard problems daily. Mock technical interviews every Saturday morning with peer resume reviews.",
+    tags: ["Algorithms", "FAANG Prep", "System Design", "Mock Interviews"],
+    created_at: "2026-09-19T10:00:00Z"
+  },
+  {
+    id: "grp_2",
+    title: "Advanced Machine Learning Paper Reading Group",
+    subject: "Artificial Intelligence",
+    semester: "Semester 6-8",
+    campus: "North Campus Innovation Center",
+    meeting_schedule: "Wednesdays 6:00 PM (Room 412)",
+    members_count: 12,
+    max_capacity: 15,
+    creator_id: "usr_ananya",
+    description: "We pick one landmark NeurIPS/ICLR paper each week, deconstruct the mathematical architecture, and review PyTorch implementations.",
+    tags: ["Deep Learning", "Transformers", "NLP", "PyTorch"],
+    created_at: "2026-09-20T14:30:00Z"
+  },
+  {
+    id: "grp_3",
+    title: "CAT / GMAT Quantitative Aptitude Circle",
+    subject: "Business School Entrance",
+    semester: "All Semesters",
+    campus: "Central Library Garden Pergola",
+    meeting_schedule: "Daily 7:00 AM – 8:30 AM",
+    members_count: 14,
+    max_capacity: 20,
+    creator_id: "usr_sneha",
+    description: "Intense daily practice on arithmetic, algebra, data interpretation, and speed math shortcuts for MBA entrance exams.",
+    tags: ["Quant", "CAT 2026", "GMAT", "Speed Math"],
+    created_at: "2026-09-21T07:00:00Z"
+  },
+  {
+    id: "grp_4",
+    title: "Autonomous Robotics & Embedded Systems Build Sprint",
+    subject: "Robotics & Electronics",
+    semester: "Semester 4-7",
+    campus: "Makerspace Workshop",
+    meeting_schedule: "Fridays 4:00 PM & Sundays 11:00 AM",
+    members_count: 10,
+    max_capacity: 12,
+    creator_id: "usr_rohan",
+    description: "Hands-on team building autonomous obstacle avoiding rovers using ROS2, LiDAR sensors, and custom 3D printed chassis.",
+    tags: ["Robotics", "ROS2", "Arduino", "3D Printing"],
+    created_at: "2026-09-22T16:00:00Z"
+  }
+];
+
+export const INITIAL_CONVERSATIONS = [
+  {
+    id: "cnv_1",
+    participant_ids: ["usr_aarav", "usr_priya"],
+    listing_id: "lst_2",
+    last_message: "Can we meet at the Library entrance at 4 PM for the Calculus book?",
+    last_message_time: "2026-09-24T17:40:00Z",
+    unread_count: 1
+  },
+  {
+    id: "cnv_2",
+    participant_ids: ["usr_aarav", "usr_ananya"],
+    listing_id: null,
+    last_message: "The PyTorch model training notes you sent are fantastic. Thanks!",
+    last_message_time: "2026-09-24T16:15:00Z",
+    unread_count: 0
+  },
+  {
+    id: "cnv_3",
+    participant_ids: ["usr_aarav", "usr_rohan"],
+    listing_id: "rom_2",
+    last_message: "Hey Aarav, the room is still open for a visit tomorrow afternoon if you're free.",
+    last_message_time: "2026-09-24T14:20:00Z",
+    unread_count: 0
+  }
+];
+
+export const INITIAL_MESSAGES = [
+  {
+    id: "msg_1",
+    conversation_id: "cnv_1",
+    sender_id: "usr_priya",
+    text: "Hi Aarav! Is your Calculus Early Transcendentals book still available?",
+    created_at: "2026-09-24T17:10:00Z"
+  },
+  {
+    id: "msg_2",
+    conversation_id: "cnv_1",
+    sender_id: "usr_aarav",
+    text: "Hey Priya! Yes, still available in great shape. Can do $38 pickup anytime today.",
+    created_at: "2026-09-24T17:25:00Z"
+  },
+  {
+    id: "msg_3",
+    conversation_id: "cnv_1",
+    sender_id: "usr_priya",
+    text: "Can we meet at the Library entrance at 4 PM for the Calculus book?",
+    created_at: "2026-09-24T17:40:00Z"
+  },
+  {
+    id: "msg_4",
+    conversation_id: "cnv_2",
+    sender_id: "usr_aarav",
+    text: "Hey Ananya, let me know if you need any adjustments to the loss curves.",
+    created_at: "2026-09-24T16:00:00Z"
+  },
+  {
+    id: "msg_5",
+    conversation_id: "cnv_2",
+    sender_id: "usr_ananya",
+    text: "The PyTorch model training notes you sent are fantastic. Thanks!",
+    created_at: "2026-09-24T16:15:00Z"
+  }
+];
+
+export const INITIAL_NOTIFICATIONS = [
+  {
+    id: "notif_1",
+    user_id: "usr_aarav",
+    type: "message",
+    title: "New Message from Priya Patel",
+    description: "Can we meet at the Library entrance at 4 PM for the Calculus book?",
+    link: "/messages",
+    is_read: false,
+    created_at: "2026-09-24T17:40:00Z"
+  },
+  {
+    id: "notif_2",
+    user_id: "usr_aarav",
+    type: "application",
+    title: "New Applicant for CS Lab Assistant",
+    description: "Rohan Verma applied for 'Undergraduate Computer Systems Lab Assistant'.",
+    link: "/jobs",
+    is_read: false,
+    created_at: "2026-09-24T16:00:00Z"
+  },
+  {
+    id: "notif_3",
+    user_id: "usr_aarav",
+    type: "booking",
+    title: "Tutoring Session Confirmed",
+    description: "Your session on 'Full-Stack Web Dev' with Kabir Sen is confirmed for tomorrow 5:00 PM.",
+    link: "/tutoring",
+    is_read: true,
+    created_at: "2026-09-24T12:30:00Z"
+  },
+  {
+    id: "notif_4",
+    user_id: "usr_aarav",
+    type: "system",
+    title: "Institutional Verification Active",
+    description: "Your university student ID has been re-verified for the 2026 academic semester.",
+    link: "/profile",
+    is_read: true,
+    created_at: "2026-09-23T09:00:00Z"
+  }
+];
+
+export const INITIAL_FAVORITES = [
+  { id: "fav_1", user_id: "usr_aarav", item_type: "listing", item_id: "lst_3" },
+  { id: "fav_2", user_id: "usr_aarav", item_type: "listing", item_id: "lst_6" },
+  { id: "fav_3", user_id: "usr_aarav", item_type: "job", item_id: "job_2" },
+  { id: "fav_4", user_id: "usr_aarav", item_type: "note", item_id: "not_2" }
+];

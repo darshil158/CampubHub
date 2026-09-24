@@ -10,7 +10,9 @@ import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Textarea } from "../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
+import { Card3D } from "../components/ui/Card3D"
 import { Badge, RemoteBadge, VerifiedBadge } from "../components/ui/Badge"
+import { api } from "../services/api"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
 
@@ -31,11 +33,11 @@ const PAY_PERIODS = [
 ]
 
 const TYPE_COLORS = {
-  "part-time": "bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-800",
-  "full-time": "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-800",
-  "internship": "bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-800",
-  "freelance": "bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-800",
-  "on-campus": "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-800",
+  "part-time": "bg-blue-500/10 text-blue-400 border-blue-500/30",
+  "full-time": "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  "internship": "bg-violet-500/10 text-violet-400 border-violet-500/30",
+  "freelance": "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  "on-campus": "bg-rose-500/10 text-rose-400 border-rose-500/30",
 }
 
 export default function Jobs() {
@@ -54,22 +56,11 @@ export default function Jobs() {
   const fetchJobs = async () => {
     setIsLoading(true)
     try {
-      let query = supabase
-        .from("jobs")
-        .select("*, profiles(full_name, avatar_url, university, phone)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-
-      if (activeType !== "all") {
-        query = query.eq("job_type", activeType)
-      }
-      if (searchQuery) {
-        query = query.ilike("title", `%${searchQuery}%`)
-      }
-
-      const { data, error } = await query
-      if (error && error.code !== "42P01") throw error
-      setJobs(data || [])
+      const data = await api.jobs.getAll({
+        search: searchQuery,
+        jobType: activeType === "all" ? "All" : activeType
+      })
+      setJobs(data)
     } catch (err) {
       console.error("Error fetching jobs:", err)
     } finally {
@@ -178,42 +169,40 @@ export default function Jobs() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
         >
           {jobs.map(job => (
-            <motion.div key={job.id} variants={item}>
-              <Card
-                className="h-full flex flex-col hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group border-border/50 hover:border-primary/30 cursor-pointer"
+            <motion.div key={job.id} variants={item} className="h-full">
+              <Card3D
+                neonGlow="purple"
+                maxTilt={10}
+                className="h-full p-5 flex flex-col justify-between"
                 onClick={() => setSelectedJob(job)}
               >
-                <CardHeader className="pb-3">
+                <div>
                   <div className="flex justify-between items-start mb-3">
                     <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${TYPE_COLORS[job.job_type] || "bg-muted"}`}>
                       {job.job_type.replace("-", " ").replace(/^\w/, c => c.toUpperCase())}
                     </span>
                     <span className="text-xs text-muted-foreground">{timeAgo(job.created_at)}</span>
                   </div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="font-bold text-lg text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
                     {job.title}
-                  </CardTitle>
+                  </h3>
                   {job.company && (
-                    <p className="text-sm text-muted-foreground font-medium mt-1">{job.company}</p>
+                    <p className="text-sm text-cyan-300/80 font-medium mt-1">{job.company}</p>
                   )}
-                </CardHeader>
-                <CardContent className="pt-0 flex-1 flex flex-col">
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-3 mb-4 leading-relaxed">{job.description}</p>
 
                   {/* Meta Info */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm">
-                      <DollarSign size={14} className="text-emerald-500 shrink-0" />
-                      <span className="font-semibold text-emerald-600">{formatPay(job)}</span>
+                      <DollarSign size={14} className="text-emerald-400 shrink-0" />
+                      <span className="font-bold text-emerald-400">{formatPay(job)}</span>
                     </div>
                     {job.location && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin size={14} className="shrink-0" />
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <MapPin size={13} className="shrink-0 text-cyan-400" />
                         <span className="truncate">{job.location}</span>
                         {job.is_remote && (
-                          <span className="flex items-center gap-1 text-xs bg-green-500/10 text-green-700 dark:text-green-400 border border-green-200/50 px-2 py-0.5 rounded-full ml-1">
-                            <Wifi size={10} /> Remote
-                          </span>
+                          <RemoteBadge className="ml-1" />
                         )}
                       </div>
                     )}
@@ -223,41 +212,41 @@ export default function Jobs() {
                   {job.skills_required && job.skills_required.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {job.skills_required.slice(0, 4).map(skill => (
-                        <span key={skill} className="bg-muted text-xs px-2 py-0.5 rounded-md text-muted-foreground font-medium">
+                        <span key={skill} className="bg-white/5 border border-white/10 text-[11px] px-2 py-0.5 rounded-md text-white/70 font-medium">
                           {skill}
                         </span>
                       ))}
                       {job.skills_required.length > 4 && (
-                        <span className="text-xs text-muted-foreground">+{job.skills_required.length - 4} more</span>
+                        <span className="text-[11px] text-muted-foreground font-medium">+{job.skills_required.length - 4} more</span>
                       )}
                     </div>
                   )}
+                </div>
 
-                  {/* Footer */}
-                  <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary/10 overflow-hidden flex items-center justify-center font-bold text-primary text-xs">
-                        {job.profiles?.avatar_url ? (
-                          <img src={job.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          job.profiles?.full_name?.charAt(0) || "?"
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground truncate max-w-[120px]">
-                        {job.profiles?.full_name || "Anonymous"}
-                      </span>
+                {/* Footer */}
+                <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 overflow-hidden flex items-center justify-center font-bold text-white text-xs shadow-xs">
+                      {job.profiles?.avatar_url ? (
+                        <img src={job.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        job.profiles?.full_name?.charAt(0) || "?"
+                      )}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 text-xs h-8"
-                      onClick={() => setSelectedJob(job)}
-                    >
-                      <Eye size={12} /> View Role
-                    </Button>
+                    <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                      {job.profiles?.full_name || "Campus Poster"}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    className="gap-1 text-xs border-white/15 hover:border-cyan-400/40"
+                    onClick={() => setSelectedJob(job)}
+                  >
+                    <Eye size={12} /> View Role
+                  </Button>
+                </div>
+              </Card3D>
             </motion.div>
           ))}
         </motion.div>
@@ -309,6 +298,8 @@ export default function Jobs() {
 // ─── Job Detail Modal ───────────────────────────────────────────────
 function JobDetailModal({ job, formatPay, onClose }) {
   const [copiedPhone, setCopiedPhone] = useState(false)
+  const [hasApplied, setHasApplied] = useState(false)
+  const [isApplying, setIsApplying] = useState(false)
   const phone = job.profiles?.phone
 
   const copyPhone = () => {
@@ -319,20 +310,32 @@ function JobDetailModal({ job, formatPay, onClose }) {
     }
   }
 
+  const handleApply = async () => {
+    setIsApplying(true)
+    try {
+      await api.jobs.apply(job.id, { pitch: "Enthusiastic applicant ready to contribute immediately!" })
+      setHasApplied(true)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsApplying(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xl"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-border shadow-2xl rounded-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto"
+        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+        transition={{ type: "spring", damping: 26, stiffness: 350 }}
+        className="bg-[#0B0F1C]/95 border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] rounded-3xl w-full max-w-xl max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
@@ -438,6 +441,27 @@ function JobDetailModal({ job, formatPay, onClose }) {
                   Contact Student
                 </Button>
               )}
+
+              <Button
+                variant="glow"
+                size="sm"
+                className="gap-1.5 text-xs shadow-md"
+                onClick={handleApply}
+                disabled={hasApplied || isApplying}
+                loading={isApplying}
+              >
+                {hasApplied ? (
+                  <>
+                    <Check size={14} className="text-emerald-400" />
+                    <span>Applied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Briefcase size={14} />
+                    <span>Apply via Campus ID</span>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>
@@ -474,23 +498,21 @@ function CreateJobModal({ onClose, onCreated }) {
     const fd = new FormData(e.target)
 
     try {
-      const { error: insertError } = await supabase.from("jobs").insert({
-        poster_id: user.id,
+      await api.jobs.create({
         title: fd.get("title"),
-        company: fd.get("company") || null,
+        company: fd.get("company") || "Campus Department",
         description: fd.get("description"),
-        job_type: fd.get("job_type"),
-        location: fd.get("location") || null,
+        job_type: fd.get("job_type") || "part-time",
+        location: fd.get("location") || "On-Campus",
         is_remote: fd.get("is_remote") === "on",
-        pay_min: fd.get("pay_min") ? parseFloat(fd.get("pay_min")) : null,
-        pay_max: fd.get("pay_max") ? parseFloat(fd.get("pay_max")) : null,
+        pay_min: fd.get("pay_min") ? parseFloat(fd.get("pay_min")) : 18,
+        pay_max: fd.get("pay_max") ? parseFloat(fd.get("pay_max")) : 25,
         pay_period: fd.get("pay_period") || "hourly",
-        skills_required: skills.length > 0 ? skills : null,
+        skills_required: skills.length > 0 ? skills : ["Communication"],
         application_url: fd.get("application_url") || null,
         status: "active",
       })
 
-      if (insertError) throw insertError
       onCreated()
     } catch (err) {
       console.error("Error creating job:", err)
@@ -505,24 +527,24 @@ function CreateJobModal({ onClose, onCreated }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xl"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-border shadow-2xl rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+        transition={{ type: "spring", damping: 26, stiffness: 350 }}
+        className="bg-[#0B0F1C]/95 border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-6 border-b border-border">
+        <div className="flex justify-between items-center p-6 border-b border-white/10">
           <div>
-            <h2 className="text-xl font-bold">Post a Campus Job</h2>
-            <p className="text-sm text-muted-foreground">Share an opportunity with fellow students</p>
+            <h2 className="text-xl font-black text-white">Post a Campus Job</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Share an opportunity with fellow university peers</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <X size={20} />
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-muted-foreground hover:text-white cursor-pointer">
+            <X size={18} />
           </button>
         </div>
 

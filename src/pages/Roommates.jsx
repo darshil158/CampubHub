@@ -11,7 +11,9 @@ import { Input } from "../components/ui/Input"
 import { Label } from "../components/ui/Label"
 import { Textarea } from "../components/ui/Textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
+import { Card3D } from "../components/ui/Card3D"
 import { Badge, VerifiedBadge } from "../components/ui/Badge"
+import { api } from "../services/api"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
 
@@ -41,8 +43,8 @@ const PREFERENCE_ICONS = {
 }
 
 const TYPE_BADGE = {
-  offering: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
-  looking: "bg-blue-500/10 text-blue-600 border-blue-200",
+  offering: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  looking: "bg-blue-500/10 text-blue-400 border-blue-500/30",
 }
 
 export default function Roommates() {
@@ -61,22 +63,11 @@ export default function Roommates() {
   const fetchListings = async () => {
     setIsLoading(true)
     try {
-      let query = supabase
-        .from("roommates")
-        .select("*, profiles(full_name, avatar_url, university, phone)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-
-      if (activeType !== "all") {
-        query = query.eq("listing_type", activeType)
-      }
-      if (searchQuery) {
-        query = query.ilike("title", `%${searchQuery}%`)
-      }
-
-      const { data, error } = await query
-      if (error && error.code !== "42P01") throw error
-      setListings(data || [])
+      const data = await api.roommates.getAll({
+        search: searchQuery,
+        type: activeType === "all" ? "All" : activeType
+      })
+      setListings(data)
     } catch (err) {
       console.error("Error fetching roommate listings:", err)
     } finally {
@@ -183,117 +174,127 @@ export default function Roommates() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
         >
           {listings.map(listing => (
-            <motion.div key={listing.id} variants={item}>
-              <Card className="h-full flex flex-col hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 group border-border/50 hover:border-emerald-500/20 cursor-pointer"
+            <motion.div key={listing.id} variants={item} className="h-full">
+              <Card3D
+                neonGlow="emerald"
+                maxTilt={10}
+                className="h-full p-0 overflow-hidden flex flex-col justify-between"
                 onClick={() => setSelectedListing(listing)}
               >
                 {/* Image Area */}
                 {listing.image_urls && listing.image_urls.length > 0 ? (
-                  <div className="relative h-40 overflow-hidden rounded-t-xl">
+                  <div className="relative h-44 overflow-hidden bg-[#070A14]">
                     <img
                       src={listing.image_urls[0]}
                       alt={listing.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     {listing.image_urls.length > 1 && (
-                      <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
+                      <span className="absolute bottom-2 right-2 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-md border border-white/15">
                         +{listing.image_urls.length - 1} photos
                       </span>
                     )}
-                    <span className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full font-semibold border backdrop-blur-sm ${TYPE_BADGE[listing.listing_type]}`}>
+                    <span className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full font-bold border backdrop-blur-md shadow-md ${TYPE_BADGE[listing.listing_type] || "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"}`}>
                       {listing.listing_type === "offering" ? "Room Available" : "Looking for Room"}
                     </span>
                   </div>
                 ) : (
-                  <div className="relative h-32 bg-gradient-to-br from-muted to-muted/50 rounded-t-xl flex items-center justify-center">
-                    <Home size={40} className="text-muted-foreground/30" />
-                    <span className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full font-semibold border ${TYPE_BADGE[listing.listing_type]}`}>
+                  <div className="relative h-36 bg-gradient-to-br from-[#0F172A] to-[#070A14] flex items-center justify-center border-b border-white/5">
+                    <Home size={44} className="text-emerald-500/40" />
+                    <span className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full font-bold border backdrop-blur-md shadow-md ${TYPE_BADGE[listing.listing_type] || "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"}`}>
                       {listing.listing_type === "offering" ? "Room Available" : "Looking for Room"}
                     </span>
                   </div>
                 )}
 
-                <CardContent className="p-5 flex-1 flex flex-col">
-                  <CardTitle className="text-lg mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors">
-                    {listing.title}
-                  </CardTitle>
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-lg text-white mb-2 line-clamp-2 group-hover:text-emerald-400 transition-colors">
+                      {listing.title}
+                    </h3>
 
-                  {/* Key Details */}
-                  <div className="space-y-1.5 mb-3">
-                    {listing.rent && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <DollarSign size={14} className="text-emerald-500 shrink-0" />
-                        <span className="font-bold text-lg text-emerald-600">
-                          ${Number(listing.rent).toLocaleString()}
-                        </span>
-                        <span className="text-muted-foreground text-xs">/month</span>
-                      </div>
-                    )}
-                    {listing.location && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin size={14} className="shrink-0" />
-                        <span className="truncate">{listing.location}</span>
-                      </div>
-                    )}
-                    {listing.move_in_date && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar size={14} className="shrink-0" />
-                        <span>Move-in: {formatDate(listing.move_in_date)}</span>
-                      </div>
-                    )}
-                    {listing.room_type && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <BedDouble size={14} className="shrink-0" />
-                        <span className="capitalize">{listing.room_type} room</span>
-                        {listing.lease_duration && (
-                          <span className="text-xs bg-muted px-2 py-0.5 rounded-full ml-auto">{listing.lease_duration}</span>
+                    {/* Key Details */}
+                    <div className="space-y-1.5 mb-3">
+                      {listing.rent && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <DollarSign size={14} className="text-emerald-400 shrink-0" />
+                          <span className="font-black text-xl text-emerald-400">
+                            ${Number(listing.rent).toLocaleString()}
+                          </span>
+                          <span className="text-muted-foreground text-xs font-medium">/month</span>
+                        </div>
+                      )}
+                      {listing.location && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <MapPin size={13} className="shrink-0 text-cyan-400" />
+                          <span className="truncate">{listing.location}</span>
+                        </div>
+                      )}
+                      {listing.move_in_date && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Calendar size={13} className="shrink-0 text-purple-400" />
+                          <span>Move-in: {formatDate(listing.move_in_date)}</span>
+                        </div>
+                      )}
+                      {listing.room_type && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <BedDouble size={13} className="shrink-0 text-amber-400" />
+                          <span className="capitalize">{listing.room_type} room</span>
+                          {listing.lease_duration && (
+                            <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full ml-auto text-white/70">{listing.lease_duration}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Amenities */}
+                    {listing.amenities && listing.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {listing.amenities.slice(0, 4).map(amenity => {
+                          const AIcon = AMENITY_ICONS[amenity]
+                          return (
+                            <span key={amenity} className="bg-white/5 border border-white/10 text-[11px] px-2 py-0.5 rounded-md text-white/75 font-medium flex items-center gap-1">
+                              {AIcon && <AIcon size={11} className="text-emerald-400" />}
+                              {amenity}
+                            </span>
+                          )
+                        })}
+                        {listing.amenities.length > 4 && (
+                          <span className="text-[11px] text-muted-foreground">+{listing.amenities.length - 4}</span>
                         )}
                       </div>
                     )}
                   </div>
 
-                  {/* Amenities */}
-                  {listing.amenities && listing.amenities.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {listing.amenities.slice(0, 4).map(amenity => {
-                        const AIcon = AMENITY_ICONS[amenity]
-                        return (
-                          <span key={amenity} className="bg-muted text-xs px-2 py-0.5 rounded-md text-muted-foreground font-medium flex items-center gap-1">
-                            {AIcon && <AIcon size={10} />}
-                            {amenity}
-                          </span>
-                        )
-                      })}
-                      {listing.amenities.length > 4 && (
-                        <span className="text-xs text-muted-foreground">+{listing.amenities.length - 4}</span>
-                      )}
-                    </div>
-                  )}
-
                   {/* Footer */}
-                  <div className="mt-auto pt-3 border-t border-border/50 flex items-center justify-between">
+                  <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-emerald-500/10 overflow-hidden flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 overflow-hidden flex items-center justify-center shadow-xs">
                         {listing.profiles?.avatar_url ? (
                           <img src={listing.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-emerald-600 text-xs font-bold">
+                          <span className="text-white text-xs font-bold">
                             {listing.profiles?.full_name?.charAt(0) || "?"}
                           </span>
                         )}
                       </div>
                       <div className="text-xs">
-                        <div className="font-medium truncate max-w-[100px]">{listing.profiles?.full_name || "Anonymous"}</div>
-                        <div className="text-muted-foreground">{timeAgo(listing.created_at)}</div>
+                        <div className="font-semibold text-white/90 truncate max-w-[100px]">{listing.profiles?.full_name || "Anonymous"}</div>
+                        <div className="text-[11px] text-muted-foreground">{timeAgo(listing.created_at)}</div>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" className="text-xs h-8 gap-1">
-                      <Eye size={12} /> View
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      className="border-white/15 hover:border-emerald-400/40 text-xs"
+                      onClick={() => setSelectedListing(listing)}
+                    >
+                      <Eye size={12} className="mr-1" /> View Room
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </Card3D>
             </motion.div>
           ))}
         </motion.div>
@@ -517,22 +518,23 @@ function CreateRoommateModal({ onClose, onCreated }) {
     const fd = new FormData(e.target)
 
     try {
-      const { error: insertError } = await supabase.from("roommates").insert({
-        poster_id: user.id,
+      await api.roommates.create({
         title: fd.get("title"),
         description: fd.get("description"),
-        listing_type: fd.get("listing_type"),
-        rent: fd.get("rent") ? parseFloat(fd.get("rent")) : null,
-        location: fd.get("location") || null,
-        move_in_date: fd.get("move_in_date") || null,
-        lease_duration: fd.get("lease_duration") || null,
-        room_type: fd.get("room_type") || null,
-        amenities: selectedAmenities.length > 0 ? selectedAmenities : null,
-        preferences: selectedPrefs.length > 0 ? selectedPrefs : null,
+        listing_type: fd.get("listing_type") || "offering",
+        rent: fd.get("rent") ? parseFloat(fd.get("rent")) : 250,
+        location: fd.get("location") || "Campus Area",
+        move_in_date: fd.get("move_in_date") || new Date().toISOString().split("T")[0],
+        lease_duration: fd.get("lease_duration") || "Semester lease",
+        room_type: fd.get("room_type") || "private",
+        amenities: selectedAmenities.length > 0 ? selectedAmenities : ["WiFi", "Laundry"],
+        preferences: selectedPrefs.length > 0 ? selectedPrefs : ["Quiet Hours"],
+        image_urls: [
+          "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80"
+        ],
         status: "active",
       })
 
-      if (insertError) throw insertError
       onCreated()
     } catch (err) {
       console.error(err)

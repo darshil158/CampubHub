@@ -11,6 +11,7 @@ import { Card3D } from "../components/ui/Card3D"
 import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError } from "../lib/utils"
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState(null)
@@ -322,6 +323,7 @@ export default function Dashboard() {
                   <img
                     src={itemData.image_url}
                     alt=""
+                    onError={handleImageError}
                     className="w-12 h-12 rounded-xl object-cover shrink-0"
                   />
                   <div className="flex-1 min-w-0">

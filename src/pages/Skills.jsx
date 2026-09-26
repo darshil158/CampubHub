@@ -269,7 +269,12 @@ export default function Skills() {
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 text-white flex items-center justify-center overflow-hidden font-bold text-xs shrink-0 shadow-xs">
                       {skill.profiles?.avatar_url ? (
-                        <img src={skill.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                        <img 
+                          src={skill.profiles.avatar_url} 
+                          alt="" 
+                          onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                          className="w-full h-full object-cover" 
+                        />
                       ) : (
                         skill.profiles?.full_name?.charAt(0) || 'S'
                       )}

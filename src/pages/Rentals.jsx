@@ -12,6 +12,7 @@ import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "../components/ui/Modal"
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError } from "../lib/utils"
 
 const RENTAL_CATEGORIES = ["All", "Audio / Video", "Entertainment", "Gaming", "Outdoor", "Academics", "Apparel"]
 
@@ -206,6 +207,7 @@ export default function Rentals() {
                   <img
                     src={itemData.image_url}
                     alt={itemData.title}
+                    onError={handleImageError}
                     className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -305,6 +307,7 @@ export default function Rentals() {
                 <img
                   src={selectedRental.image_url}
                   alt={selectedRental.title}
+                  onError={handleImageError}
                   className="w-16 h-16 rounded-xl object-cover"
                 />
                 <div>

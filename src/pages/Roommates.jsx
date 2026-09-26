@@ -189,6 +189,7 @@ export default function Roommates() {
                     <img
                       src={listing.image_urls[0]}
                       alt={listing.title}
+                      onError={(e) => handleImageError(e, FALLBACK_IMAGE_DATA_URI)}
                       className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -274,7 +275,12 @@ export default function Roommates() {
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 overflow-hidden flex items-center justify-center shadow-xs">
                         {listing.profiles?.avatar_url ? (
-                          <img src={listing.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                          <img 
+                            src={listing.profiles.avatar_url} 
+                            alt="" 
+                            onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                            className="w-full h-full object-cover" 
+                          />
                         ) : (
                           <span className="text-white text-xs font-bold">
                             {listing.profiles?.full_name?.charAt(0) || "?"}

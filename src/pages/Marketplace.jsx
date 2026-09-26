@@ -12,6 +12,7 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "../co
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
 import { Link, useNavigate } from "react-router-dom"
+import { handleImageError, FALLBACK_AVATAR_DATA_URI } from "../lib/utils"
 
 const CATEGORIES = ["All", "Textbooks", "Electronics", "Furniture", "Other"]
 
@@ -193,6 +194,7 @@ export default function Marketplace() {
                       <img 
                         src={listing.image_url} 
                         alt={listing.title}
+                        onError={handleImageError}
                         className="object-cover w-full h-full group-hover:scale-108 transition-transform duration-500"
                       />
                     ) : (
@@ -251,7 +253,12 @@ export default function Marketplace() {
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center overflow-hidden font-bold text-[10px] shadow-xs">
                           {listing.profiles?.avatar_url ? (
-                            <img src={listing.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                            <img 
+                              src={listing.profiles.avatar_url} 
+                              alt="" 
+                              onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                              className="w-full h-full object-cover" 
+                            />
                           ) : (
                             listing.profiles?.full_name?.charAt(0) || "U"
                           )}
@@ -310,6 +317,7 @@ export default function Marketplace() {
                   <img
                     src={selectedListing.image_url}
                     alt={selectedListing.title}
+                    onError={handleImageError}
                     className="w-full h-full object-cover"
                   />
                   <span className="absolute top-2.5 right-2.5 bg-black/80 px-2.5 py-0.5 rounded-full text-xs font-bold text-cyan-300 border border-white/15">

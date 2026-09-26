@@ -12,6 +12,7 @@ import { Badge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError } from "../lib/utils"
 
 const CATEGORIES = ["Textbooks", "Electronics", "Furniture", "Clothing", "Other"]
 const CONDITIONS = ["New", "Like New", "Good", "Fair", "Poor"]
@@ -148,7 +149,7 @@ export default function CreateListing() {
               <div className="flex items-center gap-4">
                 {imagePreview ? (
                   <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-cyan-400/40 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={imagePreview} alt="Preview" onError={handleImageError} className="w-full h-full object-cover" />
                     <button 
                       type="button"
                       onClick={() => { setImageFile(null); setImagePreview(null) }}
@@ -269,7 +270,7 @@ export default function CreateListing() {
           <Card3D neonGlow="cyan" maxTilt={12} className="p-0 overflow-hidden">
             <div className="relative aspect-square bg-[#070A14] overflow-hidden">
               {imagePreview ? (
-                <img src={imagePreview} alt="Live Preview" className="w-full h-full object-cover" />
+                <img src={imagePreview} alt="Live Preview" onError={handleImageError} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30 bg-[#070A14]/70">
                   <Package size={52} strokeWidth={1.5} className="text-cyan-400/40" />

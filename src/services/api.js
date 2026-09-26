@@ -14,7 +14,7 @@ import {
   INITIAL_FAVORITES
 } from "../data/seedData"
 
-const DB_KEY = "QUADLY_CAMPUS_DB_V4"
+const DB_KEY = "QUADLY_CAMPUS_DB_V5"
 
 // Helper to delay for realistic UX transitions
 const delay = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -110,6 +110,42 @@ class CampusDB {
       if (!data.notes || data.notes.length < 10) {
         data.notes = INITIAL_NOTES
         needsSave = true
+      }
+
+      // Self-heal listings if any broken image keys exist
+      if (data.listings && Array.isArray(data.listings)) {
+        const brokenMap = {
+          "photo-1580481077195": "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=800&q=80",
+          "photo-1532012164546": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
+          "photo-1517668808822": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80"
+        }
+        data.listings.forEach(l => {
+          for (const [key, replacement] of Object.entries(brokenMap)) {
+            if (l.image_url && l.image_url.includes(key)) {
+              l.image_url = replacement
+              needsSave = true
+            }
+          }
+        })
+      }
+
+      // Self-heal profiles if outdated avatar
+      if (data.profiles && Array.isArray(data.profiles)) {
+        data.profiles.forEach(p => {
+          if (p.avatar_url && p.avatar_url.includes("photo-1534751516642")) {
+            p.avatar_url = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80"
+            needsSave = true
+          }
+        })
+      }
+
+      // Self-heal roommates descriptions
+      if (data.roommates && Array.isArray(data.roommates)) {
+        const hasMissingDesc = data.roommates.some(r => !r.description)
+        if (hasMissingDesc) {
+          data.roommates = INITIAL_ROOMMATES
+          needsSave = true
+        }
       }
 
       if (needsSave) {

@@ -229,7 +229,12 @@ export default function Jobs() {
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 overflow-hidden flex items-center justify-center font-bold text-white text-xs shadow-xs">
                       {job.profiles?.avatar_url ? (
-                        <img src={job.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                        <img 
+                          src={job.profiles.avatar_url} 
+                          alt="" 
+                          onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                          className="w-full h-full object-cover" 
+                        />
                       ) : (
                         job.profiles?.full_name?.charAt(0) || "?"
                       )}

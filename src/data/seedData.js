@@ -117,7 +117,7 @@ export const INITIAL_PROFILES = [
     university: "Ashoka University",
     course: "B.A. Psychology & Media Studies",
     semester: "Semester 4",
-    avatar_url: "https://images.unsplash.com/photo-1534751516642-a171ed292022?auto=format&fit=crop&w=400&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
     bio: "Writing tutor, podcast host, and campus social director. Hosting weekly mindfulness & study sprint circles.",
     phone: "+91 98333 44556",
     trust_score: 97,
@@ -183,7 +183,7 @@ export const INITIAL_LISTINGS = [
     category: "Furniture",
     condition: "Good",
     description: "Upgraded my dorm setup. Smooth rolling wheels, breathable mesh backing. Great for long study all-nighters. Disassembles easily.",
-    image_url: "https://images.unsplash.com/photo-1580481077195-c3a8a30f4e77?auto=format&fit=crop&w=800&q=80",
+    image_url: "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=800&q=80",
     seller_id: "usr_rohan",
     location: "Engineering Hostel B",
     status: "active",
@@ -231,7 +231,7 @@ export const INITIAL_LISTINGS = [
     category: "Textbooks",
     condition: "New",
     description: "The classic algorithmic bible. Bought for CS204 but dropped the elective. Brand new unopened condition.",
-    image_url: "https://images.unsplash.com/photo-1532012164546-f432f2e3777f?auto=format&fit=crop&w=800&q=80",
+    image_url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
     seller_id: "usr_ananya",
     location: "Computer Center 2nd Floor",
     status: "active",
@@ -327,7 +327,7 @@ export const INITIAL_LISTINGS = [
     category: "Other",
     condition: "Good",
     description: "Get through 8 AM lectures without paying $6 at the campus cafe. 19-bar pressure pump heats up in 25 seconds. Compact dorm friendly.",
-    image_url: "https://images.unsplash.com/photo-1517668808822-9ebb02ae2a0e?auto=format&fit=crop&w=800&q=80",
+    image_url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
     seller_id: "usr_zoya",
     location: "Arts Faculty Lobby",
     status: "active",
@@ -968,6 +968,7 @@ export const INITIAL_ROOMMATES = [
     gender_preference: "any",
     amenities: ["High-speed WiFi", "Air Conditioning", "Washing Machine", "Kitchen with Microwave", "Balcony", "Power Backup"],
     compatibility: { clean_rating: "High", noise_level: "Moderate", study_habits: "Night owl friendly" },
+    description: "Bright corner room in a renovated 3BHK flat with wooden flooring and private balcony. Comes with study desk, ergonomic chair, and wardrobe. Split utilities evenly among 3 roommates (~$25/mo).",
     image_urls: [
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
@@ -988,6 +989,7 @@ export const INITIAL_ROOMMATES = [
     gender_preference: "male",
     amenities: ["Gym Access", "Attached Bathroom", "High-speed WiFi", "RO Purifier", "Bike Parking"],
     compatibility: { clean_rating: "Medium", noise_level: "Quiet after 11 PM", study_habits: "Weekend group studies" },
+    description: "Master bedroom with attached western bathroom and private wardrobe. The apartment has 300 Mbps fiber internet and daily housekeeping service for common spaces.",
     image_urls: [
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80"
     ],
@@ -1007,6 +1009,7 @@ export const INITIAL_ROOMMATES = [
     gender_preference: "female",
     amenities: ["WiFi", "Kitchen", "Quiet study space"],
     compatibility: { clean_rating: "High", noise_level: "Very quiet", study_habits: "Early riser" },
+    description: "Non-smoking senior student looking for a clean, peaceful apartment or roommate to share a 2BHK near campus. Serious study habits, tidy, and respectful of personal space.",
     image_urls: [
       "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80"
     ],
@@ -1026,6 +1029,7 @@ export const INITIAL_ROOMMATES = [
     gender_preference: "female",
     amenities: ["Gated Security", "Garden Patio", "Fully Equipped Kitchen", "Solar Water Heater", "In-unit Laundry"],
     compatibility: { clean_rating: "Very High", noise_level: "Quiet during weekdays", study_habits: "Serious academics" },
+    description: "Charming furnished bedroom with garden view in a gated society with 24/7 security. Includes modular kitchen setup and peaceful study atmosphere. Female flatmates only.",
     image_urls: [
       "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"
     ],

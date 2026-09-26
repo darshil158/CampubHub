@@ -203,6 +203,10 @@ export const api = {
       await delay(50)
       return db.getProfile(userId)
     },
+    async getDemoStudents() {
+      await delay(30)
+      return db.getData().profiles
+    },
     async updateProfile(updates) {
       await delay(120)
       const data = db.getData()

@@ -15,80 +15,75 @@ import { Button } from "../ui/Button"
 import { Badge } from "../ui/Badge"
 import { handleImageError, FALLBACK_AVATAR_DATA_URI } from "../../lib/utils"
 
-// Primary direct links that appear in the navbar
-const PRIMARY_LINKS = [
+// Campus Life & Living ecosystem links
+const CAMPUS_LIFE_LINKS = [
   {
-    name: "Marketplace",
-    path: "/marketplace",
-    icon: ShoppingBag,
-    badge: "Trade",
-    badgeColor: "text-cyan-300 border-cyan-400/40 bg-cyan-500/20",
-    desc: "Textbooks, electronics & dorm essentials"
-  },
-  {
-    name: "Rentals",
+    name: "Gear & Tech Rentals",
     path: "/rentals",
     icon: Layers,
     badge: "Gear",
-    badgeColor: "text-purple-300 border-purple-400/40 bg-purple-500/20",
-    desc: "Cameras, consoles, lab tools & calculators"
+    gradient: "from-purple-500 to-indigo-600",
+    shadow: "rgba(168, 85, 247, 0.35)",
+    desc: "Cameras, lab tools, consoles, bikes & graphing calculators"
   },
   {
     name: "Jobs & Gigs",
     path: "/jobs",
     icon: Briefcase,
     badge: "Earn",
-    badgeColor: "text-emerald-300 border-emerald-400/40 bg-emerald-500/20",
-    desc: "On-campus roles, research labs & student gigs"
+    gradient: "from-emerald-500 to-teal-600",
+    shadow: "rgba(16, 185, 129, 0.35)",
+    desc: "On-campus positions, research assistantships & student gigs"
   },
   {
-    name: "Roommates",
+    name: "Roommates & Housing",
     path: "/roommates",
     icon: HomeIcon,
     badge: "Housing",
-    badgeColor: "text-amber-300 border-amber-400/40 bg-amber-500/20",
-    desc: "Dorm sublets, flatmates & verified peer living"
-  },
+    gradient: "from-amber-500 to-orange-600",
+    shadow: "rgba(245, 158, 11, 0.35)",
+    desc: "Dorm sublets, verified flatmates & peer housing matches"
+  }
 ]
 
-// Secondary grouped links under the "Academics & Life" 3D mega dropdown
-const ACADEMIC_COMMUNITY_LINKS = [
+// Academics & Learning ecosystem links
+const ACADEMIC_LINKS = [
   {
     name: "Study Circles",
     path: "/study-groups",
     icon: Users,
-    tag: "Collab",
+    badge: "Collab",
     gradient: "from-cyan-500 to-blue-600",
     shadow: "rgba(0, 240, 255, 0.35)",
-    desc: "Join exam study groups, coding sprints & book circles"
+    desc: "Exam study groups, coding sprints & subject circles"
   },
   {
     name: "Peer Tutoring",
     path: "/tutoring",
     icon: GraduationCap,
-    tag: "Learn",
+    badge: "Learn",
     gradient: "from-blue-600 to-indigo-600",
     shadow: "rgba(59, 130, 246, 0.35)",
-    desc: "Book 1-on-1 tutoring sessions with top campus peers"
+    desc: "1-on-1 tutoring sessions with top-ranked campus peers"
   },
   {
     name: "Skill Swaps",
     path: "/skills",
     icon: Zap,
-    tag: "Swap",
+    badge: "Swap",
     gradient: "from-pink-500 to-purple-600",
     shadow: "rgba(236, 72, 153, 0.35)",
-    desc: "Barter programming, UI design, music & languages"
+    desc: "Barter coding, UI/UX design, music & foreign languages"
   },
   {
     name: "Course Notes",
     path: "/notes",
     icon: FileText,
-    tag: "Guides",
+    badge: "Guides",
     gradient: "from-emerald-500 to-teal-600",
     shadow: "rgba(16, 185, 129, 0.35)",
-    desc: "Download high-yield semester decks & solved past papers"
-  },
+    desc: "High-yield semester summary decks & solved past exams"
+  }
 ]
 
 // Multi-category Quick Creator Options for + Post button
@@ -135,15 +130,17 @@ export function Navbar({ onOpenCommandPalette }) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Dropdown visibility states
+  // Dropdown states
+  const [campusLifeOpen, setCampusLifeOpen] = useState(false)
   const [academicsOpen, setAcademicsOpen] = useState(false)
   const [postOpen, setPostOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [hoveredLink, setHoveredLink] = useState(null)
-  const [unreadCount, setUnreadCount] = useState(2)
+  const [unreadCount, setUnreadCount] = useState(0)
   const [students, setStudents] = useState([])
 
+  const campusLifeRef = useRef(null)
   const academicsRef = useRef(null)
   const postRef = useRef(null)
   const profileRef = useRef(null)
@@ -153,12 +150,16 @@ export function Navbar({ onOpenCommandPalette }) {
     let mounted = true
     const loadCountsAndStudents = async () => {
       try {
-        const count = await api.notifications.getUnreadCount()
-        if (mounted) setUnreadCount(count)
+        if (user) {
+          const count = await api.notifications.getUnreadCount()
+          if (mounted) setUnreadCount(count)
+        } else {
+          if (mounted) setUnreadCount(0)
+        }
         const demoStudents = await api.auth.getDemoStudents()
         if (mounted && demoStudents) setStudents(demoStudents.slice(0, 4))
       } catch {
-        // fallback
+        // graceful fallback
       }
     }
     loadCountsAndStudents()
@@ -167,6 +168,7 @@ export function Navbar({ onOpenCommandPalette }) {
 
   // Close menus on route change
   useEffect(() => {
+    setCampusLifeOpen(false)
     setAcademicsOpen(false)
     setPostOpen(false)
     setProfileMenuOpen(false)
@@ -176,6 +178,9 @@ export function Navbar({ onOpenCommandPalette }) {
   // Close menus on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
+      if (campusLifeRef.current && !campusLifeRef.current.contains(e.target)) {
+        setCampusLifeOpen(false)
+      }
       if (academicsRef.current && !academicsRef.current.contains(e.target)) {
         setAcademicsOpen(false)
       }
@@ -201,88 +206,167 @@ export function Navbar({ onOpenCommandPalette }) {
     return location.pathname.startsWith(path)
   }
 
-  const isAcademicsActive = ACADEMIC_COMMUNITY_LINKS.some(link => isRouteActive(link.path))
+  const isCampusLifeActive = CAMPUS_LIFE_LINKS.some(link => isRouteActive(link.path))
+  const isAcademicsActive = ACADEMIC_LINKS.some(link => isRouteActive(link.path))
+  const isMarketplaceActive = isRouteActive("/marketplace")
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#070A14]/90 backdrop-blur-2xl shadow-[0_4px_35px_rgba(0,0,0,0.65)]">
-      <div className="container mx-auto px-4 sm:px-6 h-17 flex items-center justify-between gap-3">
+      <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         
-        {/* Left: Brand Identity & Primary Nav Links */}
-        <div className="flex items-center gap-5 xl:gap-7">
+        {/* Left: Brand Logo & Streamlined Nav Dropdowns */}
+        <div className="flex items-center gap-6 xl:gap-8">
           <BrandLogo size="md" showWordmark={true} showBadge={true} badgeText="3D OS" />
 
-          {/* Desktop Navigation Row */}
+          {/* Desktop Navigation Row (Direct Marketplace + 2 Grouped Dropdowns) */}
           <nav
-            className="hidden lg:flex items-center space-x-1 relative text-sm font-medium"
+            className="hidden lg:flex items-center space-x-1.5 relative text-sm font-medium"
             onMouseLeave={() => setHoveredLink(null)}
           >
-            {PRIMARY_LINKS.map(link => {
-              const active = isRouteActive(link.path)
-              const Icon = link.icon
-              const isHovered = hoveredLink === link.path
+            {/* 1. Direct Link: Marketplace */}
+            <Link
+              to="/marketplace"
+              onMouseEnter={() => setHoveredLink("/marketplace")}
+              className={`relative px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold ${
+                isMarketplaceActive
+                  ? "text-cyan-300 font-bold"
+                  : "text-muted-foreground hover:text-white"
+              }`}
+              style={{ perspective: 600 }}
+            >
+              <motion.div
+                whileHover={{ y: -2, rotateX: 6, scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                className="flex items-center gap-1.5 z-10"
+              >
+                <ShoppingBag
+                  size={15}
+                  className={
+                    isMarketplaceActive
+                      ? "text-cyan-400 drop-shadow-[0_0_8px_#00F0FF]"
+                      : hoveredLink === "/marketplace"
+                      ? "text-cyan-300"
+                      : "text-muted-foreground"
+                  }
+                />
+                <span>Marketplace</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-md font-mono border text-cyan-300 border-cyan-400/40 bg-cyan-500/20">
+                  Trade
+                </span>
+              </motion.div>
 
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onMouseEnter={() => setHoveredLink(link.path)}
-                  className={`relative px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold ${
-                    active
-                      ? "text-cyan-300 font-bold"
-                      : "text-muted-foreground hover:text-white"
-                  }`}
-                  style={{ perspective: 600 }}
+              {/* Gliding Active / Hover Indicator Pill */}
+              {isMarketplaceActive && (
+                <motion.div
+                  layoutId="navbarHoverPill"
+                  className="absolute inset-0 bg-white/5 border border-cyan-400/30 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.15)] pointer-events-none"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+            </Link>
+
+            {/* 2. Dropdown: Campus Life (Rentals, Jobs, Housing) */}
+            <div
+              ref={campusLifeRef}
+              className="relative"
+              onMouseEnter={() => setCampusLifeOpen(true)}
+              onMouseLeave={() => setCampusLifeOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setCampusLifeOpen(prev => !prev)}
+                className={`relative px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
+                  isCampusLifeActive || campusLifeOpen
+                    ? "text-purple-300 font-bold"
+                    : "text-muted-foreground hover:text-white"
+                }`}
+                style={{ perspective: 600 }}
+              >
+                <motion.div
+                  whileHover={{ y: -2, rotateX: 6, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="flex items-center gap-1.5 z-10"
                 >
-                  {/* Smooth 3D Motion Container */}
+                  <Compass
+                    size={15}
+                    className={
+                      isCampusLifeActive || campusLifeOpen
+                        ? "text-purple-400 drop-shadow-[0_0_8px_#A855F7]"
+                        : "text-muted-foreground"
+                    }
+                  />
+                  <span>Campus Life</span>
+                  <ChevronDown
+                    size={13}
+                    className={`transition-transform duration-200 ${campusLifeOpen ? "rotate-180 text-purple-400" : "opacity-60"}`}
+                  />
+                </motion.div>
+
+                {isCampusLifeActive && (
                   <motion.div
-                    whileHover={{ y: -2, rotateX: 6, scale: 1.03 }}
-                    transition={{ type: "spring", stiffness: 450, damping: 25 }}
-                    className="flex items-center gap-1.5 z-10"
-                  >
-                    <Icon
-                      size={15}
-                      className={
-                        active
-                          ? "text-cyan-400 drop-shadow-[0_0_8px_#00F0FF]"
-                          : isHovered
-                          ? "text-cyan-300"
-                          : "text-muted-foreground"
-                      }
-                    />
-                    <span>{link.name}</span>
-                    <span
-                      className={`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded-md border ${
-                        active
-                          ? link.badgeColor
-                          : "bg-white/5 border-white/10 text-white/50"
-                      }`}
+                    layoutId="navbarHoverPill"
+                    className="absolute inset-0 bg-white/5 border border-purple-400/30 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.15)] pointer-events-none"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </button>
+
+              {/* Campus Life 3D Popover */}
+              <AnimatePresence>
+                {campusLifeOpen && (
+                  <div className="absolute top-full left-0 pt-2 z-50">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="w-84 rounded-2xl bg-[#0B0F1E]/95 border border-white/15 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(168,85,247,0.15)] backdrop-blur-2xl space-y-1.5"
                     >
-                      {link.badge}
-                    </span>
-                  </motion.div>
+                      <div className="px-2 py-1 flex items-center justify-between border-b border-white/10 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Campus Living & Gigs</span>
+                        <span className="text-[10px] font-mono text-purple-400">3 Verified Services</span>
+                      </div>
 
-                  {/* Active Neon Line Indicator */}
-                  {active && (
-                    <motion.div
-                      layoutId="navbarActiveIndicator"
-                      className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-gradient-to-r from-cyan-400 via-primary to-purple-500 rounded-full shadow-[0_0_10px_#00F0FF]"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
+                      {CAMPUS_LIFE_LINKS.map(item => {
+                        const Icon = item.icon
+                        const active = isRouteActive(item.path)
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setCampusLifeOpen(false)}
+                            className={`group flex items-start gap-3 p-2.5 rounded-xl border transition-all duration-200 ${
+                              active
+                                ? "bg-white/10 border-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                                : "bg-white/5 border-transparent hover:border-white/15 hover:bg-white/10"
+                            }`}
+                          >
+                            <div className={`p-2 rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-md shrink-0 group-hover:scale-105 group-hover:rotate-3 transition-transform`}>
+                              <Icon size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
+                                  {item.name}
+                                </span>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-white/10 text-white/80">
+                                  {item.badge}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                                {item.desc}
+                              </p>
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                  {/* Gliding Hover Backdrop Pill */}
-                  {isHovered && !active && (
-                    <motion.div
-                      layoutId="navbarHoverPill"
-                      className="absolute inset-0 bg-white/5 border border-white/10 rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                </Link>
-              )
-            })}
-
-            {/* Academics & Life 3D Mega Dropdown Trigger */}
+            {/* 3. Dropdown: Academics (Circles, Tutors, Swaps, Notes) */}
             <div
               ref={academicsRef}
               className="relative"
@@ -290,60 +374,65 @@ export function Navbar({ onOpenCommandPalette }) {
               onMouseLeave={() => setAcademicsOpen(false)}
             >
               <button
+                type="button"
                 onClick={() => setAcademicsOpen(prev => !prev)}
-                className={`relative px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
+                className={`relative px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
                   isAcademicsActive || academicsOpen
-                    ? "text-purple-300 font-bold bg-purple-500/10 border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-                    : "text-muted-foreground hover:text-white hover:bg-white/5"
+                    ? "text-cyan-300 font-bold"
+                    : "text-muted-foreground hover:text-white"
                 }`}
                 style={{ perspective: 600 }}
               >
                 <motion.div
                   whileHover={{ y: -2, rotateX: 6, scale: 1.03 }}
                   transition={{ type: "spring", stiffness: 450, damping: 25 }}
-                  className="flex items-center gap-1.5"
+                  className="flex items-center gap-1.5 z-10"
                 >
-                  <Sparkles size={14} className={isAcademicsActive || academicsOpen ? "text-purple-400" : "text-purple-400/80"} />
-                  <span>Academics & Life</span>
+                  <GraduationCap
+                    size={15}
+                    className={
+                      isAcademicsActive || academicsOpen
+                        ? "text-cyan-400 drop-shadow-[0_0_8px_#00F0FF]"
+                        : "text-muted-foreground"
+                    }
+                  />
+                  <span>Academics</span>
                   <ChevronDown
                     size={13}
-                    className={`transition-transform duration-300 ${academicsOpen ? "rotate-180 text-purple-300" : "text-muted-foreground"}`}
+                    className={`transition-transform duration-200 ${academicsOpen ? "rotate-180 text-cyan-400" : "opacity-60"}`}
                   />
                 </motion.div>
 
                 {isAcademicsActive && (
                   <motion.div
-                    layoutId="navbarActiveIndicator"
-                    className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-gradient-to-r from-purple-400 to-pink-500 rounded-full shadow-[0_0_10px_#a855f7]"
+                    layoutId="navbarHoverPill"
+                    className="absolute inset-0 bg-white/5 border border-cyan-400/30 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.15)] pointer-events-none"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
               </button>
 
-              {/* 3D Floating Mega-Menu Popover with Invisible Bridge Container */}
+              {/* Academics 3D Popover Grid */}
               <AnimatePresence>
                 {academicsOpen && (
                   <div className="absolute top-full left-0 pt-2 z-50">
                     <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.96, rotateX: -6 }}
-                      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.96, rotateX: -6 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                      className="w-[470px] p-3.5 rounded-2xl bg-[#090D1A]/98 border border-purple-500/30 backdrop-blur-3xl shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(168,85,247,0.22)] overflow-hidden"
-                      style={{ transformOrigin: "top left" }}
+                      initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="w-[430px] rounded-2xl bg-[#0B0F1E]/95 border border-white/15 p-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-2xl"
                     >
-                      {/* Header */}
-                      <div className="px-3 pt-1 pb-2.5 flex items-center justify-between border-b border-white/10">
-                        <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase text-purple-300">
-                          <Compass size={14} className="text-purple-400" />
-                          <span>Campus Academic & Peer Hub</span>
+                      <div className="px-2 py-1 flex items-center justify-between border-b border-white/10 mb-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles size={12} className="text-cyan-400" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Peer Academic Hub</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-mono">4 verified modules</span>
+                        <span className="text-[10px] font-mono text-cyan-400">4 Active Programs</span>
                       </div>
 
-                      {/* 2x2 Grid of Feature Cards with 3D Tilt */}
-                      <div className="grid grid-cols-2 gap-2 mt-2.5">
-                        {ACADEMIC_COMMUNITY_LINKS.map(item => {
+                      <div className="grid grid-cols-2 gap-2">
+                        {ACADEMIC_LINKS.map(item => {
                           const Icon = item.icon
                           const active = isRouteActive(item.path)
                           return (
@@ -351,55 +440,31 @@ export function Navbar({ onOpenCommandPalette }) {
                               key={item.path}
                               to={item.path}
                               onClick={() => setAcademicsOpen(false)}
-                              className={`p-3 rounded-xl border transition-all flex flex-col justify-between group cursor-pointer ${
+                              className={`group p-2.5 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
                                 active
-                                  ? "bg-white/10 border-cyan-400/40 shadow-[0_0_15px_rgba(0,240,255,0.15)]"
-                                  : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10"
+                                  ? "bg-white/10 border-cyan-400/50 shadow-[0_0_20px_rgba(0,240,255,0.2)]"
+                                  : "bg-white/5 border-transparent hover:border-white/15 hover:bg-white/10"
                               }`}
                             >
-                              <div className="flex items-start justify-between mb-2">
-                                <div
-                                  className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${item.gradient} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}
-                                  style={{ boxShadow: `0 0 15px ${item.shadow}` }}
-                                >
-                                  <Icon size={16} />
+                              <div className="flex items-center justify-between mb-2">
+                                <div className={`p-2 rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-md group-hover:scale-105 group-hover:rotate-3 transition-transform`}>
+                                  <Icon size={15} />
                                 </div>
-                                <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10">
-                                  {item.tag}
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-white/10 text-white/80">
+                                  {item.badge}
                                 </span>
                               </div>
                               <div>
                                 <h4 className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
                                   {item.name}
                                 </h4>
-                                <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
+                                <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
                                   {item.desc}
                                 </p>
                               </div>
                             </Link>
                           )
                         })}
-                      </div>
-
-                      {/* Dropdown Quick Footer */}
-                      <div className="mt-2.5 pt-2.5 border-t border-white/10 px-2 flex items-center justify-between text-xs">
-                        <Link
-                          to="/create-listing"
-                          onClick={() => setAcademicsOpen(false)}
-                          className="flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
-                        >
-                          <Plus size={14} />
-                          <span>Post New Listing / Skill</span>
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setAcademicsOpen(false)
-                            onOpenCommandPalette?.()
-                          }}
-                          className="text-[11px] text-muted-foreground hover:text-white flex items-center gap-1 cursor-pointer font-medium"
-                        >
-                          Search All <kbd className="font-mono text-[9px] bg-white/10 px-1 py-0.2 rounded border border-white/15">⌘K</kbd>
-                        </button>
                       </div>
                     </motion.div>
                   </div>
@@ -409,54 +474,50 @@ export function Navbar({ onOpenCommandPalette }) {
           </nav>
         </div>
 
-        {/* Right Section: Command Palette, + Post Dropdown, Quick Docks & Profile Hub */}
-        <div className="flex items-center space-x-2 sm:space-x-2.5">
+        {/* Right: Quick Action Controls, + Post Button, and Auth/Profile */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           
-          {/* Quick Search ⌘K Pill Button */}
-          <motion.button
-            whileHover={{ y: -1, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          {/* Quick Command Search Trigger Capsule */}
+          <button
             onClick={onOpenCommandPalette}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/40 text-xs text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-xs group"
-            title="Quick Search (Cmd+K)"
+            className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/40 text-muted-foreground hover:text-white transition-all text-xs cursor-pointer group shadow-xs"
+            title="Search campus items, tutors, roommates (⌘K)"
           >
-            <Search size={14} className="text-cyan-400 group-hover:text-cyan-300 transition-colors" />
-            <span className="hidden xl:inline text-xs font-medium">Quick Search...</span>
-            <kbd className="hidden sm:inline-block font-mono text-[10px] bg-black/50 px-1.5 py-0.5 rounded border border-white/15 text-muted-foreground group-hover:border-cyan-400/30">
-              ⌘K
-            </kbd>
-          </motion.button>
+            <Search size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span className="hidden md:inline text-[11px] font-medium text-muted-foreground">Search</span>
+            <kbd className="hidden sm:inline-block font-mono text-[9px] bg-white/10 px-1.5 py-0.2 rounded border border-white/15 text-white/70">⌘K</kbd>
+          </button>
 
-          {/* Multi-Category "+ Post" Dropdown */}
+          {/* + Post Multi-Category Dropdown */}
           <div
             ref={postRef}
-            className="relative hidden sm:block"
+            className="relative"
             onMouseEnter={() => setPostOpen(true)}
             onMouseLeave={() => setPostOpen(false)}
           >
             <button
               onClick={() => setPostOpen(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-primary text-white font-bold text-xs shadow-[0_0_18px_rgba(0,240,255,0.35)] hover:shadow-[0_0_24px_rgba(0,240,255,0.5)] transition-all hover:scale-104 border border-cyan-300/40 cursor-pointer"
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 via-primary to-purple-600 text-white text-xs font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] hover:scale-103 active:scale-98 transition-all cursor-pointer border border-white/20"
             >
-              <Plus size={14} strokeWidth={2.5} />
-              <span>Post</span>
-              <ChevronDown size={11} className={`transition-transform duration-200 ${postOpen ? "rotate-180" : ""}`} />
+              <Plus size={14} className={`transition-transform duration-200 ${postOpen ? "rotate-45" : ""}`} />
+              <span className="hidden sm:inline">Post</span>
+              <ChevronDown size={11} className={`opacity-80 transition-transform duration-200 ${postOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {/* 3D Post Popover with Invisible Bridge */}
+            {/* 3D Post Dropdown Menu */}
             <AnimatePresence>
               {postOpen && (
                 <div className="absolute top-full right-0 pt-2 z-50">
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                    className="w-64 p-2.5 rounded-2xl bg-[#090D1A]/98 border border-cyan-500/30 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_25px_rgba(0,240,255,0.15)] space-y-1"
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="w-72 rounded-2xl bg-[#0B0F1E]/95 border border-white/15 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(139,92,246,0.2)] backdrop-blur-2xl space-y-1"
                   >
-                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-300 border-b border-white/10 mb-1 flex items-center justify-between">
-                      <span>Create New</span>
-                      <span className="text-[9px] font-mono text-muted-foreground">Select type</span>
+                    <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground border-b border-white/10 mb-1 flex items-center justify-between">
+                      <span>Create New Campus Entry</span>
+                      <Sparkles size={11} className="text-cyan-400" />
                     </div>
 
                     {POST_OPTIONS.map(opt => {
@@ -466,19 +527,20 @@ export function Navbar({ onOpenCommandPalette }) {
                           key={opt.path}
                           to={opt.path}
                           onClick={() => setPostOpen(false)}
-                          className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
+                          className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all group"
                         >
-                          <div className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${opt.color} text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 transition-transform`}>
+                          <div className={`p-1.5 rounded-lg bg-gradient-to-br ${opt.color} text-white shadow-xs group-hover:scale-110 transition-transform`}>
                             <Icon size={14} />
                           </div>
-                          <div className="min-w-0">
-                            <h5 className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
                               {opt.title}
-                            </h5>
-                            <p className="text-[10px] text-muted-foreground truncate">
+                            </div>
+                            <div className="text-[10px] text-muted-foreground truncate">
                               {opt.subtitle}
-                            </p>
+                            </div>
                           </div>
+                          <ArrowRight size={12} className="text-muted-foreground group-hover:text-cyan-300 group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100" />
                         </Link>
                       )
                     })}
@@ -488,154 +550,115 @@ export function Navbar({ onOpenCommandPalette }) {
             </AnimatePresence>
           </div>
 
-          {/* Quick Access Utility Docks */}
-          <div className="flex items-center space-x-1 sm:space-x-1.5 pl-1 border-l border-white/10">
-            {/* Dashboard Icon */}
-            <Link
-              to="/dashboard"
-              className={`p-2 rounded-xl border transition-all text-xs font-semibold flex items-center gap-1.5 ${
-                isRouteActive("/dashboard")
-                  ? "bg-cyan-500/20 text-cyan-300 border-cyan-400/40 shadow-[0_0_15px_rgba(0,240,255,0.2)]"
-                  : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
-              }`}
-              title="Student Dashboard"
-            >
-              <LayoutDashboard size={15} className="text-cyan-400" />
-            </Link>
+          {/* Conditional Auth Section: Logged In vs. Logged Out */}
+          {user ? (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              
+              {/* Chat / Messages Link with Live Ping */}
+              <Link
+                to="/messages"
+                className={`relative p-2 rounded-xl border transition-all ${
+                  isRouteActive("/messages")
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+                    : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
+                }`}
+                title="Direct Campus Messages"
+              >
+                <MessageSquare size={15} className="text-emerald-400" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
+              </Link>
 
-            {/* Chat / Messages Dock with Live Green Ping */}
-            <Link
-              to="/messages"
-              className={`relative p-2 rounded-xl border transition-all ${
-                isRouteActive("/messages")
-                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
-              }`}
-              title="Campus Messenger"
-            >
-              <MessageSquare size={15} className="text-emerald-400" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
-            </Link>
+              {/* Notifications Alert Bell with Unread Badge */}
+              <Link
+                to="/notifications"
+                className={`relative p-2 rounded-xl border transition-all ${
+                  isRouteActive("/notifications")
+                    ? "bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
+                    : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
+                }`}
+                title="Notification Feed"
+              >
+                <Bell size={15} className="text-amber-400" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-black text-[9px] font-black flex items-center justify-center shadow-[0_0_8px_#f59e0b]">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
 
-            {/* Notifications Dock with Unread Badge */}
-            <Link
-              to="/notifications"
-              className={`relative p-2 rounded-xl border transition-all ${
-                isRouteActive("/notifications")
-                  ? "bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                  : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
-              }`}
-              title="Notification Feed"
-            >
-              <Bell size={15} className="text-amber-400" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-black font-black text-[9px] flex items-center justify-center shadow-[0_0_8px_#f59e0b]">
-                  {unreadCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Admin Moderation Shield */}
-            <Link
-              to="/admin"
-              className={`p-2 rounded-xl border transition-all ${
-                isRouteActive("/admin")
-                  ? "bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.2)]"
-                  : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
-              }`}
-              title="Admin Matrix & Content Moderation"
-            >
-              <Shield size={15} className="text-rose-400" />
-            </Link>
-          </div>
-
-          {/* Student Profile Hub & 3D Persona Switcher */}
-          <div
-            ref={profileRef}
-            className="relative pl-1"
-            onMouseEnter={() => setProfileMenuOpen(true)}
-            onMouseLeave={() => setProfileMenuOpen(false)}
-          >
-            {user ? (
-              <div>
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+              {/* Student Persona Profile Button & Popover */}
+              <div
+                ref={profileRef}
+                className="relative"
+                onMouseEnter={() => setProfileMenuOpen(true)}
+                onMouseLeave={() => setProfileMenuOpen(false)}
+              >
+                <button
+                  type="button"
                   onClick={() => setProfileMenuOpen(prev => !prev)}
-                  className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all cursor-pointer shadow-xs"
+                  className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all cursor-pointer group shadow-xs"
                 >
-                  <div className="relative w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold shadow-xs overflow-hidden shrink-0">
-                    {user.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        alt=""
-                        onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      user.user_metadata?.full_name?.charAt(0) || "U"
-                    )}
+                  <div className="w-7 h-7 rounded-full overflow-hidden border border-cyan-400/40 relative bg-cyan-950">
+                    <img
+                      src={user.user_metadata?.avatar_url || FALLBACK_AVATAR_DATA_URI}
+                      alt={user.user_metadata?.full_name || "Profile"}
+                      onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="hidden md:flex flex-col text-left">
-                    <span className="text-xs font-bold text-white max-w-[100px] truncate leading-tight">
-                      {user.user_metadata?.full_name?.split(" ")[0] || "Student"}
-                    </span>
-                    <span className="text-[10px] text-cyan-300 font-medium leading-tight">
-                      Verified
-                    </span>
-                  </div>
-                  <ChevronDown size={13} className={`hidden md:block transition-transform duration-200 text-muted-foreground ${profileMenuOpen ? "rotate-180 text-white" : ""}`} />
-                </motion.button>
+                  <span className="hidden sm:inline text-xs font-semibold max-w-[85px] truncate text-white">
+                    {user.user_metadata?.full_name?.split(" ")[0] || "Student"}
+                  </span>
+                  <ChevronDown size={12} className={`text-muted-foreground transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
+                </button>
 
-                {/* 3D Glass Profile & Persona Switcher Popover with Invisible Bridge */}
+                {/* 3D Student Dashboard & Persona Switcher Popover */}
                 <AnimatePresence>
                   {profileMenuOpen && (
                     <div className="absolute top-full right-0 pt-2 z-50">
                       <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95, rotateX: -6 }}
-                        animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                        exit={{ opacity: 0, y: 6, scale: 0.95, rotateX: -6 }}
-                        transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                        className="w-76 rounded-2xl bg-[#090D1A]/98 border border-cyan-500/30 backdrop-blur-3xl shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_25px_rgba(0,240,255,0.18)] p-4 space-y-3"
-                        style={{ transformOrigin: "top right" }}
+                        initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="w-80 rounded-2xl bg-[#0B0F1E]/95 border border-white/15 p-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-2xl space-y-3"
                       >
-                        {/* Active User Card */}
-                        <div className="flex items-center gap-3 pb-3 border-b border-white/10">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-md overflow-hidden shrink-0">
-                            {user.user_metadata?.avatar_url ? (
-                              <img
-                                src={user.user_metadata.avatar_url}
-                                alt=""
-                                onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              user.user_metadata?.full_name?.charAt(0) || "U"
-                            )}
+                        {/* Current Student Profile Header */}
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-transparent border border-white/10">
+                          <div className="w-10 h-10 rounded-full overflow-hidden border border-cyan-400/50 shadow-sm shrink-0">
+                            <img
+                              src={user.user_metadata?.avatar_url || FALLBACK_AVATAR_DATA_URI}
+                              alt=""
+                              onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <div className="min-w-0 flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <h4 className="font-bold text-sm text-white truncate">
+                              <span className="text-xs font-bold text-white truncate">
                                 {user.user_metadata?.full_name || "Campus Student"}
-                              </h4>
-                              <ShieldCheck size={14} className="text-cyan-400 shrink-0" />
+                              </span>
+                              <ShieldCheck size={13} className="text-cyan-400 shrink-0" />
                             </div>
-                            <p className="text-[11px] text-muted-foreground truncate">
-                              {user.user_metadata?.university || user.email}
-                            </p>
-                            <div className="mt-1 flex items-center gap-1.5">
-                              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-bold px-2 py-0.5 rounded-full border border-cyan-400/30">
-                                98% Trust Score
+                            <div className="text-[10px] text-muted-foreground truncate">
+                              {user.user_metadata?.university || "Campus University"}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                                99% Trust
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-400/20">
+                                Verified
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Demo Persona Switcher */}
+                        {/* Switch Demo Student Persona (1-Click) */}
                         <div>
-                          <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2 flex items-center justify-between">
-                            <span>Switch Demo Student</span>
-                            <span className="text-cyan-400 font-mono text-[9px]">Instant</span>
+                          <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-1 mb-1.5 flex items-center justify-between">
+                            <span>Switch Student Persona</span>
+                            <span className="text-cyan-400 font-mono text-[9px]">1-Click Demo</span>
                           </div>
                           <div className="grid grid-cols-2 gap-1.5">
                             {students.map(std => {
@@ -643,8 +666,8 @@ export function Navbar({ onOpenCommandPalette }) {
                               return (
                                 <button
                                   key={std.id}
-                                  onClick={() => {
-                                    switchStudent(std.id)
+                                  onClick={async () => {
+                                    await switchStudent(std.id)
                                     setProfileMenuOpen(false)
                                   }}
                                   className={`p-2 rounded-xl border text-left text-xs transition-all flex items-center gap-2 cursor-pointer ${
@@ -671,6 +694,14 @@ export function Navbar({ onOpenCommandPalette }) {
                         {/* Navigation Actions */}
                         <div className="pt-2 border-t border-white/10 space-y-1 text-xs">
                           <Link
+                            to="/dashboard"
+                            onClick={() => setProfileMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-white/90 hover:text-white transition-colors"
+                          >
+                            <LayoutDashboard size={14} className="text-purple-400" />
+                            <span>Student Command Dashboard</span>
+                          </Link>
+                          <Link
                             to="/profile"
                             onClick={() => setProfileMenuOpen(false)}
                             className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-white/90 hover:text-white transition-colors"
@@ -679,20 +710,12 @@ export function Navbar({ onOpenCommandPalette }) {
                             <span>View Full Profile</span>
                           </Link>
                           <Link
-                            to="/dashboard"
+                            to="/admin"
                             onClick={() => setProfileMenuOpen(false)}
                             className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-white/90 hover:text-white transition-colors"
                           >
-                            <LayoutDashboard size={14} className="text-purple-400" />
-                            <span>Student OS Dashboard</span>
-                          </Link>
-                          <Link
-                            to="/create-listing"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-white/90 hover:text-white transition-colors"
-                          >
-                            <Plus size={14} className="text-emerald-400" />
-                            <span>Create New Listing</span>
+                            <Shield size={14} className="text-rose-400" />
+                            <span>Admin Matrix & Audit</span>
                           </Link>
                         </div>
 
@@ -711,23 +734,24 @@ export function Navbar({ onOpenCommandPalette }) {
                   )}
                 </AnimatePresence>
               </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <Link
-                  to="/login"
-                  className="text-xs font-semibold px-2.5 py-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Log in
+            </div>
+          ) : (
+            /* Logged Out View for Fresh Visitors */
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="text-xs font-semibold px-3 py-1.5 text-muted-foreground hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              >
+                Log in
+              </Link>
+              <Button asChild variant="glow" size="xs">
+                <Link to="/signup" className="flex items-center gap-1 font-bold">
+                  <Sparkles size={13} />
+                  <span>Join Free</span>
                 </Link>
-                <Button asChild variant="glow" size="xs">
-                  <Link to="/signup" className="flex items-center gap-1">
-                    <Sparkles size={13} />
-                    <span>Join</span>
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </div>
+              </Button>
+            </div>
+          )}
 
           {/* Mobile Drawer Trigger */}
           <button
@@ -765,11 +789,28 @@ export function Navbar({ onOpenCommandPalette }) {
               <kbd className="font-mono text-[10px] bg-white/10 px-1.5 py-0.5 rounded border border-white/15">⌘K</kbd>
             </div>
 
-            {/* Core Destinations Grid */}
+            {/* Core Destinations */}
             <div>
-              <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">Campus Ecosystem</div>
+              <div className="text-[10px] font-black uppercase tracking-wider text-cyan-400 mb-2">Campus Marketplace & Trade</div>
+              <Link
+                to="/marketplace"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 p-3 rounded-xl text-xs font-semibold transition-all ${
+                  isMarketplaceActive
+                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/40"
+                    : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white border border-white/5"
+                }`}
+              >
+                <ShoppingBag size={16} className="text-cyan-400" />
+                <span>Student Marketplace</span>
+              </Link>
+            </div>
+
+            {/* Campus Life Section */}
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-wider text-purple-400 mb-2">Campus Life & Living</div>
               <div className="grid grid-cols-2 gap-2">
-                {PRIMARY_LINKS.map(link => {
+                {CAMPUS_LIFE_LINKS.map(link => {
                   const Icon = link.icon
                   const active = isRouteActive(link.path)
                   return (
@@ -777,25 +818,25 @@ export function Navbar({ onOpenCommandPalette }) {
                       key={link.path}
                       to={link.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold transition-all ${
                         active
-                          ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-cyan-300 border border-cyan-400/40 shadow-sm"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-400/40"
                           : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white border border-white/5"
                       }`}
                     >
-                      <Icon size={16} className={active ? "text-cyan-400" : "text-white/60"} />
-                      <span>{link.name}</span>
+                      <Icon size={15} className={active ? "text-purple-400" : "text-white/60"} />
+                      <span className="truncate">{link.name}</span>
                     </Link>
                   )
                 })}
               </div>
             </div>
 
-            {/* Academics & Circles Section */}
+            {/* Academics Section */}
             <div>
-              <div className="text-[10px] font-black uppercase tracking-wider text-purple-400 mb-2">Academics & Study Circles</div>
+              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 mb-2">Academics & Study Circles</div>
               <div className="grid grid-cols-2 gap-2">
-                {ACADEMIC_COMMUNITY_LINKS.map(item => {
+                {ACADEMIC_LINKS.map(item => {
                   const Icon = item.icon
                   const active = isRouteActive(item.path)
                   return (
@@ -803,68 +844,82 @@ export function Navbar({ onOpenCommandPalette }) {
                       key={item.path}
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold transition-all ${
                         active
-                          ? "bg-purple-500/20 text-purple-300 border border-purple-400/40"
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/40"
                           : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white border border-white/5"
                       }`}
                     >
-                      <Icon size={16} className={active ? "text-purple-400" : "text-white/60"} />
-                      <span>{item.name}</span>
+                      <Icon size={15} className={active ? "text-emerald-400" : "text-white/60"} />
+                      <span className="truncate">{item.name}</span>
                     </Link>
                   )
                 })}
               </div>
             </div>
 
-            {/* Quick Mobile Docks */}
-            <div className="grid grid-cols-4 gap-2 pt-2 border-t border-white/10">
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] text-muted-foreground hover:text-white"
-              >
-                <LayoutDashboard size={16} className="text-cyan-400 mb-1" />
-                <span>Dashboard</span>
-              </Link>
-              <Link
-                to="/messages"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] text-muted-foreground hover:text-white"
-              >
-                <MessageSquare size={16} className="text-emerald-400 mb-1" />
-                <span>Chat</span>
-              </Link>
-              <Link
-                to="/notifications"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] text-muted-foreground hover:text-white"
-              >
-                <Bell size={16} className="text-amber-400 mb-1" />
-                <span>Alerts</span>
-              </Link>
-              <Link
-                to="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] text-muted-foreground hover:text-white"
-              >
-                <Shield size={16} className="text-rose-400 mb-1" />
-                <span>Admin</span>
-              </Link>
-            </div>
+            {/* Quick Access Docks & Profile */}
+            {user ? (
+              <div className="pt-2 border-t border-white/10 space-y-2">
+                <div className="grid grid-cols-3 gap-2">
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5 text-[10px] text-muted-foreground hover:text-white"
+                  >
+                    <LayoutDashboard size={15} className="text-purple-400 mb-1" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    to="/messages"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5 text-[10px] text-muted-foreground hover:text-white"
+                  >
+                    <MessageSquare size={15} className="text-emerald-400 mb-1" />
+                    <span>Messages</span>
+                  </Link>
+                  <Link
+                    to="/notifications"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5 text-[10px] text-muted-foreground hover:text-white"
+                  >
+                    <Bell size={15} className="text-amber-400 mb-1" />
+                    <span>Alerts</span>
+                  </Link>
+                </div>
 
-            {/* Mobile Create Listing Button */}
-            <Link
-              to="/create-listing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-primary text-white font-bold text-sm shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-            >
-              <Plus size={16} />
-              <span>Create New Listing or Post</span>
-            </Link>
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-xs font-semibold text-white"
+                  >
+                    <UserIcon size={15} className="text-cyan-400" />
+                    <span>{user.user_metadata?.full_name || "Profile"}</span>
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-xs text-rose-400 font-semibold px-2 py-1 rounded hover:bg-rose-500/10 cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
+                <Button asChild variant="outline" size="sm" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/login">Log in</Link>
+                </Button>
+                <Button asChild variant="glow" size="sm" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/signup">Join Free</Link>
+                </Button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
     </header>
   )
 }
+
+export default Navbar

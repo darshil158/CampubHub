@@ -10,6 +10,8 @@ import { Card3D } from "../components/ui/Card3D"
 import { Canvas3D } from "../components/ui/Canvas3D"
 import { BrandLogo } from "../components/ui/BrandLogo"
 import { supabase } from "../lib/supabase"
+import { useAuthStore } from "../store/useAuthStore"
+import { api } from "../services/api"
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false)
@@ -36,15 +38,23 @@ export default function Signup() {
         }
       })
 
-      if (error) throw error
-      
-      if (data.session) {
+      if (!error && data?.session) {
         navigate('/marketplace')
-      } else {
-        setError("Account created! Please check your email to verify your account.")
+        return
       }
+
+      // If Supabase requires email verification or throws, register student locally so they get their profile immediately
+      const student = await api.auth.registerStudent({ fullName, email })
+      await useAuthStore.getState().switchStudent(student.id)
+      navigate('/marketplace')
     } catch (err) {
-      setError(err.message)
+      try {
+        const student = await api.auth.registerStudent({ fullName, email })
+        await useAuthStore.getState().switchStudent(student.id)
+        navigate('/marketplace')
+      } catch (localErr) {
+        setError(err.message || "Failed to create account.")
+      }
     } finally {
       setIsLoading(false)
     }

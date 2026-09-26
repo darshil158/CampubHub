@@ -23,7 +23,7 @@ export const useAuthStore = create((set, get) => ({
         return
       }
 
-      // 2. Fallback to active demo student profile
+      // 2. Check local authenticated user (only if explicitly logged in)
       const localUser = await api.auth.getCurrentUser()
       if (localUser) {
         set({
@@ -44,25 +44,11 @@ export const useAuthStore = create((set, get) => ({
         return
       }
 
-      set({ isLoading: false })
+      // Default: user is logged out when first visiting the site
+      set({ session: null, user: null, isLoading: false })
     } catch (error) {
-      console.warn('Session init fallback to demo profile:', error)
-      const localUser = await api.auth.getCurrentUser()
-      set({
-        session: null,
-        user: {
-          id: localUser.id,
-          email: localUser.email,
-          user_metadata: {
-            full_name: localUser.full_name,
-            university: localUser.university,
-            avatar_url: localUser.avatar_url,
-            bio: localUser.bio
-          },
-          created_at: localUser.joined_date || "2024-08-15"
-        },
-        isLoading: false
-      })
+      console.warn('Session init:', error)
+      set({ session: null, user: null, isLoading: false })
     }
   },
   
@@ -72,11 +58,21 @@ export const useAuthStore = create((set, get) => ({
     } catch {
       // ignore
     }
+    await api.auth.setCurrentUser(null)
     set({ user: null, session: null })
   },
 
   switchStudent: async (studentId) => {
+    if (!studentId) {
+      await api.auth.setCurrentUser(null)
+      set({ user: null, session: null })
+      return
+    }
     const profile = await api.auth.setCurrentUser(studentId)
+    if (!profile) {
+      set({ user: null, session: null })
+      return
+    }
     set({
       user: {
         id: profile.id,

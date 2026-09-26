@@ -10,6 +10,8 @@ import { Card3D } from "../components/ui/Card3D"
 import { Canvas3D } from "../components/ui/Canvas3D"
 import { BrandLogo, BrandSymbol } from "../components/ui/BrandLogo"
 import { supabase } from "../lib/supabase"
+import { useAuthStore } from "../store/useAuthStore"
+import { api } from "../services/api"
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
@@ -25,17 +27,35 @@ export default function Login() {
     const password = e.target.password.value
 
     try {
+      // 1. Try Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
+      if (!error && data?.session) {
+        navigate('/marketplace')
+        return
+      }
+
+      // 2. Try Local / Demo Student Accounts
+      const localProfile = await api.auth.loginWithEmail(email, password)
+      if (localProfile) {
+        await useAuthStore.getState().switchStudent(localProfile.id)
+        navigate('/marketplace')
+        return
+      }
+
       if (error) throw error
-      
-      // Successfully logged in
-      navigate('/marketplace')
     } catch (err) {
-      setError(err.message)
+      // Check if email matches any demo student profile
+      const demoMatch = await api.auth.findProfileByEmail(email)
+      if (demoMatch) {
+        await useAuthStore.getState().switchStudent(demoMatch.id)
+        navigate('/marketplace')
+        return
+      }
+      setError(err.message || "Failed to sign in. Please verify your credentials or use 1-click Demo.")
     } finally {
       setIsLoading(false)
     }
@@ -112,11 +132,48 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-8 text-center text-xs text-muted-foreground">
+          <div className="mt-6 text-center text-xs text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary hover:underline font-semibold">
               Create an account
             </Link>
+          </div>
+
+          {/* Quick 1-Click Demo Login Panel */}
+          <div className="w-full mt-6 pt-5 border-t border-white/10">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                Instant Demo Student Sign-In
+              </span>
+              <span className="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-400/20 font-semibold">
+                1-Click
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: "usr_aarav", name: "Aarav Patel", role: "Seller & CS '26", badge: "Trader" },
+                { id: "usr_priya", name: "Priya Sharma", role: "Tutor & EE '25", badge: "Tutor" },
+                { id: "usr_rohan", name: "Rohan Gupta", role: "Renter & ME '27", badge: "Renter" },
+                { id: "usr_ananya", name: "Ananya Iyer", role: "Roommate & Design", badge: "Sublet" }
+              ].map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={async () => {
+                    setIsLoading(true)
+                    await useAuthStore.getState().switchStudent(p.id)
+                    navigate('/marketplace')
+                  }}
+                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/40 text-left transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">{p.name}</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">{p.badge}</span>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5 truncate">{p.role}</div>
+                </button>
+              ))}
+            </div>
           </div>
         </Card3D>
       </motion.div>

@@ -14,7 +14,7 @@ import {
   INITIAL_FAVORITES
 } from "../data/seedData"
 
-const DB_KEY = "QUADLY_CAMPUS_DB_V5"
+const DB_KEY = "QUADLY_CAMPUS_DB_V6"
 
 // Helper to delay for realistic UX transitions
 const delay = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -34,7 +34,7 @@ class CampusDB {
   resetToSeed() {
     const initialData = {
       profiles: INITIAL_PROFILES,
-      currentUserId: "usr_aarav",
+      currentUserId: null, // Logged out by default for fresh visitors
       listings: INITIAL_LISTINGS,
       rentals: INITIAL_RENTALS,
       skills: INITIAL_SKILLS,
@@ -173,7 +173,9 @@ class CampusDB {
 
   getCurrentUser() {
     const db = this.getData()
-    const p = db.profiles.find(x => x.id === db.currentUserId) || db.profiles[0]
+    if (!db.currentUserId) return null
+    const p = db.profiles.find(x => x.id === db.currentUserId)
+    if (!p) return null
     return {
       ...p,
       college: p?.university || p?.college || "Campus University"
@@ -190,27 +192,68 @@ export const api = {
   // ── Auth & Profile ────────────────────────────────────────────────────────
   auth: {
     async getCurrentUser() {
-      await delay(50)
+      await delay(30)
       return db.getCurrentUser()
     },
     async setCurrentUser(userId) {
       const data = db.getData()
-      data.currentUserId = userId
+      data.currentUserId = userId || null
       db.saveData(data)
       return db.getCurrentUser()
     },
     async getProfile(userId) {
-      await delay(50)
+      await delay(30)
       return db.getProfile(userId)
     },
     async getDemoStudents() {
-      await delay(30)
+      await delay(20)
       return db.getData().profiles
+    },
+    async loginWithEmail(email, password) {
+      await delay(60)
+      const data = db.getData()
+      const normalized = (email || "").trim().toLowerCase()
+      const match = data.profiles.find(p => (p.email || "").toLowerCase() === normalized)
+      if (match) {
+        data.currentUserId = match.id
+        db.saveData(data)
+        return db.getCurrentUser()
+      }
+      return null
+    },
+    async findProfileByEmail(email) {
+      const data = db.getData()
+      const normalized = (email || "").trim().toLowerCase()
+      return data.profiles.find(p => (p.email || "").toLowerCase() === normalized) || null
+    },
+    async registerStudent({ fullName, email }) {
+      await delay(80)
+      const data = db.getData()
+      const id = `usr_${Date.now()}`
+      const newProfile = {
+        id,
+        full_name: fullName || "Student",
+        email: email || `student_${Date.now()}@university.edu`,
+        university: "Campus University",
+        major: "Computer Science",
+        grad_year: "2027",
+        bio: "Campus student exploring Quadly.",
+        avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        rating: 5.0,
+        reviews_count: 0,
+        is_verified: true,
+        joined_date: new Date().toISOString().split("T")[0]
+      }
+      data.profiles.push(newProfile)
+      data.currentUserId = id
+      db.saveData(data)
+      return newProfile
     },
     async updateProfile(updates) {
       await delay(120)
       const data = db.getData()
       const currentUser = db.getCurrentUser()
+      if (!currentUser) return null
       const idx = data.profiles.findIndex(p => p.id === currentUser.id)
       if (idx !== -1) {
         data.profiles[idx] = { ...data.profiles[idx], ...updates }
@@ -288,7 +331,7 @@ export const api = {
       const user = db.getCurrentUser()
       const newListing = {
         id: `lst_${Date.now()}`,
-        seller_id: user.id,
+        seller_id: user ? user.id : (data.profiles[0]?.id || "usr_aarav"),
         status: "active",
         views: 1,
         favorites: 0,
@@ -855,12 +898,14 @@ export const api = {
       await delay(50)
       const data = db.getData()
       const user = db.getCurrentUser()
+      if (!user) return []
       return data.notifications.filter(n => n.user_id === user.id)
     },
 
     async getUnreadCount() {
       const data = db.getData()
       const user = db.getCurrentUser()
+      if (!user) return 0
       return data.notifications.filter(n => n.user_id === user.id && !n.is_read).length
     },
 
@@ -875,10 +920,12 @@ export const api = {
     async markAllRead() {
       const data = db.getData()
       const user = db.getCurrentUser()
-      data.notifications.forEach(n => {
-        if (n.user_id === user.id) n.is_read = true
-      })
-      db.saveData(data)
+      if (user) {
+        data.notifications.forEach(n => {
+          if (n.user_id === user.id) n.is_read = true
+        })
+        db.saveData(data)
+      }
       return { success: true }
     }
   },
@@ -889,6 +936,19 @@ export const api = {
       await delay(90)
       const data = db.getData()
       const user = db.getCurrentUser()
+
+      if (!user) {
+        return {
+          totalListings: 0,
+          totalApplications: 0,
+          totalBookings: 0,
+          totalRentals: 0,
+          totalFavorites: 0,
+          trustScore: 100,
+          activeTradesRevenue: 0,
+          recentActivity: []
+        }
+      }
 
       const myListings = data.listings.filter(l => l.seller_id === user.id)
       const myApplications = data.applications.filter(a => a.user_id === user.id)

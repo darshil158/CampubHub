@@ -16,6 +16,8 @@ import { Card3D } from "../components/ui/Card3D"
 import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
+import { api } from "../services/api"
+import { handleImageError, FALLBACK_AVATAR_DATA_URI } from "../lib/utils"
 
 const TABS = [
   { id: "profile", label: "Profile", icon: User },
@@ -88,12 +90,19 @@ function ProfileHero({ user }) {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single()
-      setProfile(data)
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single()
+        if (data) {
+          setProfile(data)
+          return
+        }
+      } catch {}
+      const local = await api.auth.getCurrentUser()
+      setProfile(local)
     }
     fetchProfile()
   }, [user.id])
@@ -110,7 +119,12 @@ function ProfileHero({ user }) {
             <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-cyan-500 via-primary to-pink-500 p-0.5 shadow-[0_0_20px_rgba(124,102,255,0.4)]">
               <div className="w-full h-full rounded-2xl bg-[#0B0F1C] overflow-hidden flex items-center justify-center">
                 {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={profile.avatar_url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                  />
                 ) : (
                   <span className="text-white text-2xl font-black">{initials}</span>
                 )}
@@ -167,17 +181,30 @@ function ProfileTab({ user }) {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true)
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single()
-      if (data) {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single()
+        if (data) {
+          setProfile({
+            full_name: data.full_name || "",
+            university: data.university || "",
+            bio: data.bio || "",
+            phone: data.phone || "",
+          })
+          setIsLoading(false)
+          return
+        }
+      } catch {}
+      const local = await api.auth.getCurrentUser()
+      if (local) {
         setProfile({
-          full_name: data.full_name || "",
-          university: data.university || "",
-          bio: data.bio || "",
-          phone: data.phone || "",
+          full_name: local.full_name || "",
+          university: local.university || "",
+          bio: local.bio || "",
+          phone: local.phone || "",
         })
       }
       setIsLoading(false)
@@ -189,11 +216,12 @@ function ProfileTab({ user }) {
     setIsSaving(true)
     setSaveStatus(null)
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ id: user.id, ...profile })
-
-      if (error) throw error
+      try {
+        await supabase
+          .from("profiles")
+          .upsert({ id: user.id, ...profile })
+      } catch {}
+      await api.auth.updateProfile(profile)
       setSaveStatus("success")
       setTimeout(() => setSaveStatus(null), 3000)
     } catch (err) {
@@ -312,10 +340,29 @@ function ListingsManager({ user, tableName, icon: Icon, emptyTitle, emptyDesc, c
         .eq(fkColumn, user.id)
         .order("created_at", { ascending: false })
 
-      if (error && error.code !== "42P01") throw error
-      setItems(data || [])
+      if (!error && data && data.length > 0) {
+        setItems(data)
+        setIsLoading(false)
+        return
+      }
     } catch (err) {
-      console.error(err)
+      console.warn("Supabase query fallback to local API:", err)
+    }
+
+    try {
+      if (tableName === "listings") {
+        const all = await api.marketplace.getAll()
+        setItems(all.filter(i => i.seller_id === user.id))
+      } else if (tableName === "jobs") {
+        const all = await api.jobs.getAll()
+        setItems(all.filter(j => j.poster_id === user.id))
+      } else if (tableName === "roommates") {
+        const all = await api.roommates.getAll()
+        setItems(all.filter(r => r.poster_id === user.id))
+      }
+    } catch (localErr) {
+      console.error(localErr)
+      setItems([])
     } finally {
       setIsLoading(false)
     }
@@ -327,8 +374,12 @@ function ListingsManager({ user, tableName, icon: Icon, emptyTitle, emptyDesc, c
     if (!window.confirm("Are you sure you want to delete this listing?")) return
     setDeletingId(id)
     try {
-      const { error } = await supabase.from(tableName).delete().eq("id", id)
-      if (error) throw error
+      try {
+        await supabase.from(tableName).delete().eq("id", id)
+      } catch {}
+      if (tableName === "listings") await api.marketplace.delete(id)
+      else if (tableName === "jobs") await api.jobs.delete(id)
+      else if (tableName === "roommates") await api.roommates.delete(id)
       setItems(prev => prev.filter(item => item.id !== id))
     } catch (err) {
       console.error(err)

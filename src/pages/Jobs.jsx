@@ -15,6 +15,7 @@ import { Badge, RemoteBadge, VerifiedBadge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError, FALLBACK_AVATAR_DATA_URI } from "../lib/utils"
 
 const JOB_TYPES = [
   { value: "all", label: "All Jobs", icon: Briefcase },
@@ -300,6 +301,7 @@ function JobDetailModal({ job, formatPay, onClose }) {
   const [copiedPhone, setCopiedPhone] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
   const [isApplying, setIsApplying] = useState(false)
+  const [pitch, setPitch] = useState("")
   const phone = job.profiles?.phone
 
   const copyPhone = () => {
@@ -313,7 +315,9 @@ function JobDetailModal({ job, formatPay, onClose }) {
   const handleApply = async () => {
     setIsApplying(true)
     try {
-      await api.jobs.apply(job.id, { pitch: "Enthusiastic applicant ready to contribute immediately!" })
+      await api.jobs.apply(job.id, {
+        pitch: pitch.trim() || "Enthusiastic applicant with verified campus credentials ready to contribute immediately!"
+      })
       setHasApplied(true)
     } catch (err) {
       console.error(err)
@@ -401,12 +405,32 @@ function JobDetailModal({ job, formatPay, onClose }) {
             </div>
           )}
 
+          {/* Resume Note / Pitch Input */}
+          <div className="mb-6 bg-muted/30 p-4 rounded-2xl border border-border/50">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span>Resume Note & Availability</span>
+              <span className="text-[10px] text-cyan-400 font-normal">Attached to Campus ID application</span>
+            </h4>
+            <textarea
+              rows={2}
+              value={pitch}
+              onChange={(e) => setPitch(e.target.value)}
+              placeholder="Highlight your coursework, relevant technical skills, or weekly availability..."
+              className="w-full bg-[#0B0F1C] border border-white/10 rounded-xl p-3 text-xs text-white placeholder:text-muted-foreground focus:outline-hidden focus:border-cyan-400"
+            />
+          </div>
+
           {/* Poster Profile & Contact Section */}
           <div className="border-t border-border pt-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden flex items-center justify-center font-bold text-primary">
                 {job.profiles?.avatar_url ? (
-                  <img src={job.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={job.profiles.avatar_url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                  />
                 ) : (
                   job.profiles?.full_name?.charAt(0) || "?"
                 )}

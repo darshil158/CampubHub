@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useNavigate } from "react-router-dom"
 import {
   Search, Plus, Home, MapPin, DollarSign, Calendar,
   X, Loader2, AlertCircle, Wifi, Car, WashingMachine,
   Dog, Ban, Moon, Users, Building2, BedDouble, Eye,
-  Phone, Check
+  Phone, Check, MessageSquare
 } from "lucide-react"
 import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
@@ -16,6 +17,7 @@ import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { supabase } from "../lib/supabase"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError, FALLBACK_IMAGE_DATA_URI, FALLBACK_AVATAR_DATA_URI } from "../lib/utils"
 
 const LISTING_TYPES = [
   { value: "all", label: "All Listings" },
@@ -342,6 +344,9 @@ export default function Roommates() {
 // ─── Listing Detail Modal ────────────────────────────────────────────
 function ListingDetailModal({ listing, onClose }) {
   const [copiedPhone, setCopiedPhone] = useState(false)
+  const [inquirySent, setInquirySent] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const navigate = useNavigate()
   const phone = listing.profiles?.phone
 
   const copyPhone = () => {
@@ -351,12 +356,32 @@ function ListingDetailModal({ listing, onClose }) {
       setTimeout(() => setCopiedPhone(false), 2500)
     }
   }
+
+  const handleMessagePoster = async () => {
+    setIsSending(true)
+    try {
+      await api.messages.sendMessage({
+        recipientId: listing.poster_id || "usr_rohan",
+        text: `Hi ${listing.profiles?.full_name?.split(' ')[0] || "there"}, I'm interested in your room listing: "${listing.title}". Is it still open for move-in?`
+      })
+      setInquirySent(true)
+      setTimeout(() => {
+        onClose()
+        navigate("/messages")
+      }, 1000)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsSending(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
@@ -364,14 +389,19 @@ function ListingDetailModal({ listing, onClose }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-border shadow-2xl rounded-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto"
+        className="bg-[#0B0F1C] border border-white/15 shadow-2xl rounded-3xl w-full max-w-xl max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image Header */}
         {listing.image_urls && listing.image_urls.length > 0 && (
-          <div className="relative h-48 rounded-t-2xl overflow-hidden">
-            <img src={listing.image_urls[0]} alt={listing.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="relative h-48 rounded-t-3xl overflow-hidden">
+            <img
+              src={listing.image_urls[0]}
+              alt={listing.title}
+              className="w-full h-full object-cover"
+              onError={(e) => handleImageError(e, FALLBACK_IMAGE_DATA_URI)}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1C] to-transparent" />
           </div>
         )}
 
@@ -381,46 +411,46 @@ function ListingDetailModal({ listing, onClose }) {
               <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${TYPE_BADGE[listing.listing_type]}`}>
                 {listing.listing_type === "offering" ? "Room Available" : "Looking for Room"}
               </span>
-              <h2 className="text-2xl font-bold mt-3">{listing.title}</h2>
+              <h2 className="text-2xl font-bold mt-3 text-white">{listing.title}</h2>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors shrink-0">
+            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors shrink-0 text-muted-foreground hover:text-white">
               <X size={20} />
             </button>
           </div>
 
           {listing.rent && (
             <div className="flex items-baseline gap-1 mb-4">
-              <span className="text-3xl font-bold text-emerald-600">${Number(listing.rent).toLocaleString()}</span>
-              <span className="text-muted-foreground">/month</span>
+              <span className="text-3xl font-bold text-emerald-400">${Number(listing.rent).toLocaleString()}</span>
+              <span className="text-muted-foreground text-sm">/month</span>
             </div>
           )}
 
-          <p className="text-muted-foreground mb-6 leading-relaxed">{listing.description}</p>
+          <p className="text-muted-foreground text-sm mb-6 leading-relaxed">{listing.description}</p>
 
           {/* Details Grid */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             {listing.location && (
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><MapPin size={12} /> Location</div>
-                <div className="text-sm font-medium">{listing.location}</div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><MapPin size={12} className="text-cyan-400" /> Location</div>
+                <div className="text-xs sm:text-sm font-semibold text-white">{listing.location}</div>
               </div>
             )}
             {listing.room_type && (
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><BedDouble size={12} /> Room Type</div>
-                <div className="text-sm font-medium capitalize">{listing.room_type}</div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><BedDouble size={12} className="text-amber-400" /> Room Type</div>
+                <div className="text-xs sm:text-sm font-semibold capitalize text-white">{listing.room_type}</div>
               </div>
             )}
             {listing.move_in_date && (
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><Calendar size={12} /> Move-in</div>
-                <div className="text-sm font-medium">{new Date(listing.move_in_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><Calendar size={12} className="text-purple-400" /> Move-in</div>
+                <div className="text-xs sm:text-sm font-semibold text-white">{new Date(listing.move_in_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
               </div>
             )}
             {listing.lease_duration && (
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1">Lease</div>
-                <div className="text-sm font-medium">{listing.lease_duration}</div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="text-xs text-muted-foreground mb-1 text-pink-400">Lease</div>
+                <div className="text-xs sm:text-sm font-semibold text-white">{listing.lease_duration}</div>
               </div>
             )}
           </div>
@@ -428,10 +458,10 @@ function ListingDetailModal({ listing, onClose }) {
           {/* Amenities */}
           {listing.amenities && listing.amenities.length > 0 && (
             <div className="mb-5">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Amenities</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Amenities Included</h4>
               <div className="flex flex-wrap gap-2">
                 {listing.amenities.map(a => (
-                  <span key={a} className="bg-emerald-500/10 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-medium">{a}</span>
+                  <span key={a} className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-3 py-1.5 rounded-xl font-medium">{a}</span>
                 ))}
               </div>
             </div>
@@ -440,54 +470,77 @@ function ListingDetailModal({ listing, onClose }) {
           {/* Preferences */}
           {listing.preferences && listing.preferences.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Preferences</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Roommate Preferences</h4>
               <div className="flex flex-wrap gap-2">
                 {listing.preferences.map(p => (
-                  <span key={p} className="bg-blue-500/10 text-blue-700 text-xs px-3 py-1.5 rounded-full font-medium">{p}</span>
+                  <span key={p} className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-3 py-1.5 rounded-xl font-medium">{p}</span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Poster Info */}
-          <div className="border-t border-border pt-4 flex items-center justify-between">
+          {/* Poster Info & Action Bar */}
+          <div className="border-t border-white/10 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/10 overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 overflow-hidden flex items-center justify-center font-bold text-white shadow-xs">
                 {listing.profiles?.avatar_url ? (
-                  <img src={listing.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={listing.profiles.avatar_url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => handleImageError(e, FALLBACK_AVATAR_DATA_URI)}
+                  />
                 ) : (
-                  <span className="text-emerald-600 font-bold">{listing.profiles?.full_name?.charAt(0) || "?"}</span>
+                  listing.profiles?.full_name?.charAt(0) || "?"
                 )}
               </div>
               <div>
-                <div className="font-medium">{listing.profiles?.full_name || "Anonymous"}</div>
+                <div className="font-semibold text-sm text-white">{listing.profiles?.full_name || "Campus Peer"}</div>
                 <div className="text-xs text-muted-foreground">{listing.profiles?.university || "Campus Student"}</div>
               </div>
             </div>
-            {phone ? (
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {phone && (
+                <Button
+                  onClick={copyPhone}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-white/15"
+                >
+                  {copiedPhone ? (
+                    <>
+                      <Check size={14} className="text-emerald-400 mr-1" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Phone size={14} className="mr-1 text-cyan-400" /> Call
+                    </>
+                  )}
+                </Button>
+              )}
+
               <Button
-                onClick={copyPhone}
-                className={copiedPhone ? "bg-muted text-foreground border border-border" : "bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 text-xs"}
+                onClick={handleMessagePoster}
+                variant="glow"
+                size="sm"
+                className="gap-1.5 text-xs flex-1 sm:flex-initial"
+                disabled={inquirySent || isSending}
+                loading={isSending}
               >
-                {copiedPhone ? (
+                {inquirySent ? (
                   <>
-                    <Check size={14} className="text-emerald-500 mr-1" /> Copied!
+                    <Check size={14} className="text-emerald-400" />
+                    <span>Inquiry Sent!</span>
                   </>
                 ) : (
                   <>
-                    <Phone size={14} className="mr-1" /> Contact: {phone}
+                    <MessageSquare size={14} />
+                    <span>Message Roommate</span>
                   </>
                 )}
               </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="text-xs"
-                onClick={() => alert(`Connect with ${listing.profiles?.full_name || "the poster"} via university channels.`)}
-              >
-                Contact Poster
-              </Button>
-            )}
+            </div>
           </div>
         </div>
       </motion.div>

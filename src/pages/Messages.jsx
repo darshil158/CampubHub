@@ -9,6 +9,7 @@ import { Input } from "../components/ui/Input"
 import { Badge, VerifiedBadge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError } from "../lib/utils"
 
 export default function Messages() {
   const [conversations, setConversations] = useState([])
@@ -140,7 +141,7 @@ export default function Messages() {
                   >
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden shadow-xs">
                       {convo.otherUser?.avatar_url ? (
-                        <img src={convo.otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                        <img src={convo.otherUser.avatar_url} alt="" onError={handleImageError} className="w-full h-full object-cover" />
                       ) : (
                         convo.otherUser?.full_name?.charAt(0) || "U"
                       )}
@@ -185,7 +186,7 @@ export default function Messages() {
                   </button>
                   <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden shadow-xs">
                     {activeConvo.otherUser?.avatar_url ? (
-                      <img src={activeConvo.otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                      <img src={activeConvo.otherUser.avatar_url} alt="" onError={handleImageError} className="w-full h-full object-cover" />
                     ) : (
                       activeConvo.otherUser?.full_name?.charAt(0) || "U"
                     )}

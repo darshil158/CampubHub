@@ -38,9 +38,8 @@ export default function Notes() {
     setIsLoading(true)
     try {
       const res = await api.notes.getAll()
-      if (res.success) {
-        setNotes(res.data)
-      }
+      const items = Array.isArray(res) ? res : (res?.data || [])
+      setNotes(items)
     } catch (err) {
       console.error(err)
     } finally {
@@ -76,8 +75,9 @@ export default function Notes() {
           college: 'IIT Delhi'
         }
       })
-      if (res.success) {
-        setNotes(prev => [res.data, ...prev])
+      const newNote = res?.data || res
+      if (newNote) {
+        setNotes(prev => [newNote, ...prev])
         setIsUploadModalOpen(false)
         setUploadFormData({
           title: '',

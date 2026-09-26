@@ -15,6 +15,7 @@ export default function Admin() {
   const [reports, setReports] = useState([])
   const [profiles, setProfiles] = useState([])
   const [activeTab, setActiveTab] = useState("reports")
+  const [role, setRole] = useState("admin") // "admin" | "student"
   const [isLoading, setIsLoading] = useState(true)
   const [actionSuccess, setActionSuccess] = useState(null)
 
@@ -46,6 +47,7 @@ export default function Admin() {
   }
 
   const handleResolve = async (reportId, action) => {
+    if (role !== "admin") return
     await api.admin.resolveReport(reportId, action)
     setActionSuccess(`Report ${action === 'ban' ? 'banned item' : 'dismissed'} successfully.`)
     setTimeout(() => setActionSuccess(null), 3000)
@@ -59,18 +61,47 @@ export default function Admin() {
       <div className="ambient-aurora w-[600px] h-[350px] bg-cyan-600/10 bottom-0 right-10 pointer-events-none" />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8 relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="verified" size="xs" className="border-red-400/30 text-red-300">
-              Campus Security & Moderation 3D
+            <Badge variant="verified" size="xs" className={role === "admin" ? "border-red-400/30 text-red-300" : "border-cyan-400/30 text-cyan-300"}>
+              {role === "admin" ? "Campus Security & Moderation 3D" : "Campus Safety & Transparency"}
             </Badge>
             <span className="text-xs text-muted-foreground font-medium">• Institutional Governance</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">Admin Command Matrix</h1>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+            {role === "admin" ? "Admin Command Matrix" : "Student Transparency Center"}
+          </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Campus-wide moderation, trust metrics, report resolution, and platform integrity management.
+            {role === "admin"
+              ? "Campus-wide moderation, trust metrics, report resolution, and platform integrity management."
+              : "Institutional oversight, community safety logs, verified student registry, and platform health."}
           </p>
+        </div>
+
+        {/* Role Switcher Pill */}
+        <div className="flex items-center gap-1.5 p-1.5 bg-[#0B0F1C] border border-white/10 rounded-2xl backdrop-blur-xl">
+          <span className="text-[11px] font-bold text-muted-foreground px-2">Role:</span>
+          <button
+            onClick={() => setRole("admin")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              role === "admin"
+                ? "bg-gradient-to-r from-red-600 to-purple-600 text-white shadow-xs"
+                : "text-muted-foreground hover:text-white"
+            }`}
+          >
+            Campus Admin
+          </button>
+          <button
+            onClick={() => setRole("student")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              role === "student"
+                ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-xs"
+                : "text-muted-foreground hover:text-white"
+            }`}
+          >
+            Student View
+          </button>
         </div>
       </div>
 
@@ -131,6 +162,29 @@ export default function Admin() {
         ))}
       </div>
 
+      {/* Role-based Student Transparency Notice */}
+      {role === "student" && (
+        <div className="mb-6 p-5 rounded-3xl bg-cyan-500/10 border border-cyan-400/30 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-400/30 shadow-xs">
+              <ShieldAlert size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                <span>Student Transparency Mode</span>
+                <Badge variant="verified" size="xs">Read-Only</Badge>
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                You are viewing platform safety statistics and community audit records. Direct moderation actions (takedowns, user bans) require authorized moderator login.
+              </p>
+            </div>
+          </div>
+          <Button variant="glow" size="xs" onClick={() => setRole("admin")} className="shrink-0">
+            Switch to Admin Role
+          </Button>
+        </div>
+      )}
+
       {/* Tab Panels */}
       <div className="relative z-10">
         {activeTab === "reports" && (
@@ -159,24 +213,30 @@ export default function Admin() {
                 </div>
 
                 {rep.status === "pending" && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      className="text-xs border-white/15 hover:border-emerald-400"
-                      onClick={() => handleResolve(rep.id, "dismiss")}
-                    >
-                      <Check size={12} className="mr-1" /> Dismiss
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="destructive"
-                      className="text-xs bg-red-600 hover:bg-red-700"
-                      onClick={() => handleResolve(rep.id, "ban")}
-                    >
-                      <Ban size={12} className="mr-1" /> Remove Post
-                    </Button>
-                  </div>
+                  role === "admin" ? (
+                    <div className="flex gap-2">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        className="text-xs border-white/15 hover:border-emerald-400"
+                        onClick={() => handleResolve(rep.id, "dismiss")}
+                      >
+                        <Check size={12} className="mr-1" /> Dismiss
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="destructive"
+                        className="text-xs bg-red-600 hover:bg-red-700"
+                        onClick={() => handleResolve(rep.id, "ban")}
+                      >
+                        <Ban size={12} className="mr-1" /> Remove Post
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-muted-foreground bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+                      Under Review by Moderator
+                    </span>
+                  )
                 )}
               </div>
             ))}

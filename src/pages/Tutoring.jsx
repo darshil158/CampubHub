@@ -13,6 +13,7 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "../co
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
 import { useNavigate } from "react-router-dom"
+import { handleImageError } from "../lib/utils"
 
 export default function Tutoring() {
   const [tutors, setTutors] = useState([])
@@ -149,7 +150,7 @@ export default function Tutoring() {
                   <div className="flex items-start gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 overflow-hidden shrink-0 border border-white/15 relative shadow-md">
                       {tutor.profiles?.avatar_url ? (
-                        <img src={tutor.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                        <img src={tutor.profiles.avatar_url} alt="" onError={handleImageError} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl">
                           {tutor.profiles?.full_name?.charAt(0) || "T"}

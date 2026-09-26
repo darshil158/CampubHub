@@ -7,6 +7,7 @@ import { Card3D } from "../components/ui/Card3D"
 import { Badge } from "../components/ui/Badge"
 import { api } from "../services/api"
 import { useAuthStore } from "../store/useAuthStore"
+import { handleImageError, FALLBACK_AVATAR_DATA_URI } from "../lib/utils"
 
 export default function Skills() {
   const [skills, setSkills] = useState([])
@@ -43,9 +44,8 @@ export default function Skills() {
       const res = await api.skills.getAll({
         type: filterType === 'all' ? undefined : filterType
       })
-      if (res.success) {
-        setSkills(res.data)
-      }
+      const items = Array.isArray(res) ? res : (res?.data || [])
+      setSkills(items)
     } catch (err) {
       console.error(err)
     } finally {
@@ -67,8 +67,9 @@ export default function Skills() {
           avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
         }
       })
-      if (res.success) {
-        setSkills(prev => [res.data, ...prev])
+      const newSkill = res?.data || res
+      if (newSkill) {
+        setSkills(prev => [newSkill, ...prev])
         setIsPostModalOpen(false)
         setFormData({
           title: '',
@@ -85,15 +86,27 @@ export default function Skills() {
     }
   }
 
-  const handleProposeSwap = (e) => {
+  const handleProposeSwap = async (e) => {
     e.preventDefault()
-    setSwapSuccess(true)
-    setTimeout(() => {
-      setSwapSuccess(false)
-      setSelectedSkillForSwap(null)
-      setSwapOfferedSkill('')
-      setSwapMessage('')
-    }, 1800)
+    if (!selectedSkillForSwap) return
+    setIsSubmitting(true)
+    try {
+      await api.skills.proposeSwap({
+        skillId: selectedSkillForSwap.id,
+        offerNote: `${swapOfferedSkill ? `Offering ${swapOfferedSkill}: ` : ''}${swapMessage || "Let's connect to swap skills!"}`
+      })
+      setSwapSuccess(true)
+      setTimeout(() => {
+        setSwapSuccess(false)
+        setSelectedSkillForSwap(null)
+        setSwapOfferedSkill('')
+        setSwapMessage('')
+      }, 1800)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const categories = [

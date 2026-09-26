@@ -14,7 +14,7 @@ import {
   INITIAL_FAVORITES
 } from "../data/seedData"
 
-const DB_KEY = "QUADLY_CAMPUS_DB_V2"
+const DB_KEY = "QUADLY_CAMPUS_DB_V4"
 
 // Helper to delay for realistic UX transitions
 const delay = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -99,7 +99,23 @@ class CampusDB {
         this.resetToSeed()
         return JSON.parse(localStorage.getItem(DB_KEY))
       }
-      return JSON.parse(raw)
+      const data = JSON.parse(raw)
+      let needsSave = false
+
+      // Self-heal skills and notes if missing or outdated
+      if (!data.skills || data.skills.length < 10) {
+        data.skills = INITIAL_SKILLS
+        needsSave = true
+      }
+      if (!data.notes || data.notes.length < 10) {
+        data.notes = INITIAL_NOTES
+        needsSave = true
+      }
+
+      if (needsSave) {
+        this.saveData(data)
+      }
+      return data
     } catch {
       this.resetToSeed()
       return JSON.parse(localStorage.getItem(DB_KEY))
@@ -112,12 +128,20 @@ class CampusDB {
 
   getProfile(userId) {
     const db = this.getData()
-    return db.profiles.find(p => p.id === userId) || db.profiles[0]
+    const p = db.profiles.find(x => x.id === userId) || db.profiles[0]
+    return {
+      ...p,
+      college: p?.university || p?.college || "Campus University"
+    }
   }
 
   getCurrentUser() {
     const db = this.getData()
-    return db.profiles.find(p => p.id === db.currentUserId) || db.profiles[0]
+    const p = db.profiles.find(x => x.id === db.currentUserId) || db.profiles[0]
+    return {
+      ...p,
+      college: p?.university || p?.college || "Campus University"
+    }
   }
 }
 

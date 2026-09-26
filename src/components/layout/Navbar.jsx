@@ -209,9 +209,7 @@ export function Navbar({ onOpenCommandPalette }) {
         
         {/* Left: Brand Identity & Primary Nav Links */}
         <div className="flex items-center gap-5 xl:gap-7">
-          <Link to="/" className="group flex items-center gap-2">
-            <BrandLogo size="md" showWordmark={true} showBadge={true} badgeText="3D OS" />
-          </Link>
+          <BrandLogo size="md" showWordmark={true} showBadge={true} badgeText="3D OS" />
 
           {/* Desktop Navigation Row */}
           <nav

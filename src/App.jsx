@@ -33,7 +33,6 @@ import { Card, CardContent } from './components/ui/Card'
 import { Card3D } from './components/ui/Card3D'
 import { Canvas3D } from './components/ui/Canvas3D'
 import { CommandPalette } from './components/ui/CommandPalette'
-import { HeroVisual3D } from './components/ui/HeroVisual3D'
 import { Navbar } from './components/layout/Navbar'
 
 export default function App() {
@@ -428,15 +427,6 @@ function HomeView({ user, onOpenCommand }) {
             </Button>
           </motion.div>
 
-          {/* Interactive 3D Holographic Core */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.35 }}
-            className="my-10"
-          >
-            <HeroVisual3D className="mx-auto" />
-          </motion.div>
 
           {/* Live 3D Stats Row */}
           <motion.div

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import AuthCallback from './pages/AuthCallback'
 import Marketplace from './pages/Marketplace'
 import CreateListing from './pages/CreateListing'
 import Rentals from './pages/Rentals'
@@ -109,6 +110,7 @@ export default function App() {
           <Route path="/profile" element={user ? <Profile /> : <Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
         </Routes>
       </main>
 

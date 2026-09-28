@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Analytics } from '@vercel/analytics/react'
 import {
   Search, LogIn, LogOut, User as UserIcon,
   Menu, X, Briefcase, Home as HomeIcon, ShoppingBag,
@@ -67,6 +68,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-cyan-500/20 selection:text-cyan-300 relative overflow-x-hidden">
+      <Analytics />
       {/* 3D Command Palette Modal */}
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
 

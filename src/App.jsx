@@ -9,6 +9,7 @@ import {
   Flame, Bell, ArrowUpRight, Command, Compass, Cpu,
   Layers, LayoutDashboard, MessageSquare, Shield
 } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import AuthCallback from './pages/AuthCallback'
@@ -179,6 +180,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      <Analytics />
     </div>
   )
 }
